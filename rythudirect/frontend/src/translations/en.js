@@ -1,0 +1,110 @@
+export const en = {
+  // Navigation
+  brandName: "RythuDirect",
+  tagline: "Fair Prices. Direct Buyers. Better Farming.",
+  home: "Home",
+  howItWorks: "How It Works",
+  exploreProduce: "Explore Produce",
+  marketPrices: "Mandi Prices",
+  aboutUs: "About Us",
+  login: "Login",
+  register: "Register",
+  dashboard: "Dashboard",
+  logout: "Logout",
+
+  // Hero
+  heroHeadline: "Sell Your Harvest at the Right Price.",
+  heroSubtitle: "Connect directly with verified buyers, compare competitive offers and manage your agricultural sales transparently.",
+  startSelling: "Start Selling",
+  exploreMarket: "Explore Produce",
+
+  // Roles
+  farmer: "Farmer",
+  buyer: "Buyer",
+  admin: "Administrator",
+
+  // Farmer Dashboard
+  farmerDashboard: "Farmer Dashboard",
+  activeListings: "Active Listings",
+  totalAvailableQty: "Available Quantity",
+  ordersReceived: "Orders Received",
+  pendingPayments: "Pending Payments",
+  completedSales: "Completed Sales",
+  totalEarnings: "Total Earnings",
+  addNewProduce: "Add New Produce",
+  manageProduce: "Manage Produce",
+  buyerOffers: "Buyer Offers",
+  compareOffers: "Compare Offers",
+  orders: "Orders",
+  payments: "Payments",
+  farmProfile: "Farm Profile",
+
+  // Add Produce Form
+  cropName: "Crop Name",
+  cropCategory: "Crop Category",
+  quantityKg: "Quantity (in Kg)",
+  unit: "Unit",
+  expectedPrice: "Asking Price (₹/kg)",
+  minAcceptablePrice: "Minimum Acceptable Price (₹/kg) - Private to you",
+  minPriceNote: "Buyers will NEVER see your minimum price. It helps you evaluate counter-offers.",
+  harvestDate: "Harvest Date",
+  availableUntil: "Available Until",
+  qualityGrade: "Quality Grade",
+  produceDescription: "Description",
+  deliveryLocation: "Village & Delivery Location",
+  deliveryAvailable: "Direct Delivery Available",
+  pickupAvailable: "Farm Gate Pickup Available",
+  cropPhotos: "Crop Photos",
+  submitListing: "Publish Listing",
+
+  // Negotiation & Offers
+  makeOffer: "Make an Offer",
+  offeredPrice: "Offered Price (₹/kg)",
+  requiredQuantity: "Required Quantity (kg)",
+  preferredDeliveryDate: "Preferred Delivery Date",
+  deliveryMethod: "Delivery Method",
+  additionalRequirements: "Special Instructions / Quality Specifications",
+  acceptOffer: "Accept Offer",
+  counterOffer: "Counteroffer",
+  rejectOffer: "Reject Offer",
+  counterPrice: "Your Counter Price (₹/kg)",
+  notes: "Notes to Buyer",
+  submitCounter: "Send Counteroffer",
+
+  // Weighment & Quality
+  weighmentRecord: "Scale Weighment & Quality Slip",
+  grossWeight: "Gross Weight (kg)",
+  packagingWeight: "Packaging / Tare Weight (kg)",
+  netWeight: "Net Produce Weight (kg)",
+  acceptedQuantity: "Accepted Quantity (kg)",
+  rejectedQuantity: "Rejected Quantity (kg)",
+  finalAmount: "Final Payable Amount (₹)",
+  scaleSlipNo: "Certified Scale Slip No.",
+  confirmWeighment: "Confirm Weighment",
+  bothConfirmNotice: "Both Farmer and Buyer must confirm. Once confirmed, this record is permanently locked.",
+
+  // Payment
+  paymentStatus: "Payment Status",
+  payAdvance: "Pay Advance (20%)",
+  payFull: "Pay Full Amount",
+  viewReceipt: "View Receipt",
+  transactionRef: "Transaction Ref",
+  escrowProtected: "Escrow Protected Payment",
+
+  // Disputes
+  raiseDispute: "Report an Issue / Dispute",
+  disputeReason: "Reason for Dispute",
+  disputeDescription: "Detailed Description",
+  submitDispute: "Submit Dispute for Arbitration",
+
+  // Common
+  status: "Status",
+  date: "Date",
+  actions: "Actions",
+  viewDetails: "View Details",
+  verified: "Verified",
+  unverified: "Unverified",
+  filter: "Filter",
+  sortBy: "Sort By",
+  searchPlaceholder: "Search crops by name, village, or district...",
+};

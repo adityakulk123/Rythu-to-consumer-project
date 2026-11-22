@@ -1,0 +1,110 @@
+export const te = {
+  // Navigation
+  brandName: "రైతుడైరెక్ట్",
+  tagline: "సరసమైన ధరలు. ప్రత్యక్ష కొనుగోలుదారులు. మెరుగైన వ్యవసాయం.",
+  home: "హోమ్",
+  howItWorks: "ఎలా పనిచేస్తుంది",
+  exploreProduce: "పంట ఉత్పత్తులు",
+  marketPrices: "మార్కెట్ ధరలు",
+  aboutUs: "మా గురించి",
+  login: "లాగిన్",
+  register: "రిజిస్ట్రేషన్",
+  dashboard: "డాష్‌బోర్డ్",
+  logout: "లాగౌట్",
+
+  // Hero
+  heroHeadline: "మీ పంటను సరైన ధరకు నేరుగా విక్రయించండి.",
+  heroSubtitle: "మధ్యవర్తులు లేకుండా ధృవీకరించబడిన కొనుగోలుదారులతో నేరుగా కనెక్ట్ అవ్వండి, ధరలను సరిపోల్చండి మరియు పారదర్శక తూకం ద్వారా సరైన ఆదాయం పొందండి.",
+  startSelling: "పంట అమ్మకం ప్రారంభించండి",
+  exploreMarket: "పంట ఉత్పత్తులను చూడండి",
+
+  // Roles
+  farmer: "రైతు",
+  buyer: "కొనుగోలుదారు",
+  admin: "అడ్మినిస్ట్రేటర్",
+
+  // Farmer Dashboard
+  farmerDashboard: "రైతు డాష్‌బోర్డ్",
+  activeListings: "యాక్టివ్ లిస్టింగ్‌లు",
+  totalAvailableQty: "అందుబాటులో ఉన్న పరిమాణం",
+  ordersReceived: "వచ్చిన ఆర్డర్లు",
+  pendingPayments: "రావలసిన బకాయిలు",
+  completedSales: "పూర్తయిన అమ్మకాలు",
+  totalEarnings: "మొత్తం ఆదాయం",
+  addNewProduce: "కొత్త పంటను నమోదు చేయండి",
+  manageProduce: "పంటల నిర్వహణ",
+  buyerOffers: "కొనుగోలుదారుల ఆఫర్లు",
+  compareOffers: "ధరల పోలిక",
+  orders: "ఆర్డర్లు",
+  payments: "చెల్లింపులు",
+  farmProfile: "వ్యవసాయ ప్రొఫైల్",
+
+  // Add Produce Form
+  cropName: "పంట పేరు",
+  cropCategory: "పంట వర్గం",
+  quantityKg: "పరిమాణం (కిలోలలో)",
+  unit: "కొలత ప్రమాణం",
+  expectedPrice: "ఆశిస్తున్న ధర (రూ./కిలో)",
+  minAcceptablePrice: "కనీస అంగీకార ధర (రూ./కిలో) - రైతుకు మాత్రమే రహస్యం",
+  minPriceNote: "కొనుగోలుదారులు మీ కనీస ధరను ఎప్పటికీ చూడలేరు. ఇది కౌంటర్ ఆఫర్లను అంచనా వేయడానికి మీకు ఉపయోగపడుతుంది.",
+  harvestDate: "కోత తేదీ",
+  availableUntil: "అందుబాటులో ఉండే తేదీ వరకు",
+  qualityGrade: "నాణ్యత గ్రేడ్",
+  produceDescription: "పంట వివరాలు",
+  deliveryLocation: "గ్రామం & డెలివరీ ప్రదేశం",
+  deliveryAvailable: "డెలివరీ అందుబాటులో ఉంది",
+  pickupAvailable: "చేను వద్దనే పికప్ అందుబాటులో ఉంది",
+  cropPhotos: "పంట ఛాయాచిత్రాలు",
+  submitListing: "పంటను ప్రచురించండి",
+
+  // Negotiation & Offers
+  makeOffer: "ధర ఆఫర్ సమర్పించండి",
+  offeredPrice: "ఆఫర్ చేసిన ధర (రూ./కిలో)",
+  requiredQuantity: "కావలసిన పరిమాణం (కిలోలు)",
+  preferredDeliveryDate: "కోరుకున్న డెలివరీ తేదీ",
+  deliveryMethod: "డెలివరీ విధానం",
+  additionalRequirements: "ప్రత్యేక సూచనలు / నిబంధనలు",
+  acceptOffer: "ఆఫర్‌ను అంగీకరించండి",
+  counterOffer: "కౌంటర్ ఆఫర్ ఇవ్వండి",
+  rejectOffer: "ఆఫర్‌ను తిరస్కరించండి",
+  counterPrice: "మీ కౌంటర్ ధర (రూ./కిలో)",
+  notes: "కొనుగోలుదారుకు గమనిక",
+  submitCounter: "కౌంటర్ ఆఫర్ పంపండి",
+
+  // Weighment & Quality
+  weighmentRecord: "ధృవీకరించబడిన తూకం & నాణ్యత పత్రం",
+  grossWeight: "స్థూల బరువు (కిలోలు)",
+  packagingWeight: "ప్యాకేజింగ్ / కంటైనర్ బరువు (కిలోలు)",
+  netWeight: "నికర పంట బరువు (కిలోలు)",
+  acceptedQuantity: "అంగీకరించిన పరిమాణం (కిలోలు)",
+  rejectedQuantity: "తిరస్కరించిన పరిమాణం (కిలోలు)",
+  finalAmount: "తుది చెల్లించవలసిన మొత్తం (రూ.)",
+  scaleSlipNo: "తూకం స్లిప్ నంబర్",
+  confirmWeighment: "తూకాన్ని ధృవీకరించండి",
+  bothConfirmNotice: "రైతు మరియు కొనుగోలుదారు ఇద్దరూ తప్పనిసరిగా ధృవీకరించాలి. ధృవీకరించిన తర్వాత మార్చడం సాధ్యం కాదు.",
+
+  // Payment
+  paymentStatus: "చెల్లింపు స్థితి",
+  payAdvance: "అడ్వాన్స్ చెల్లించండి (20%)",
+  payFull: "మొత్తం చెల్లించండి",
+  viewReceipt: "రసీదు చూడండి",
+  transactionRef: "లావాదేవీ సంఖ్య",
+  escrowProtected: "ఎస్క్రో సురక్షిత చెల్లింపు",
+
+  // Disputes
+  raiseDispute: "సమస్య / వివాదాన్ని నివేదించండి",
+  disputeReason: "వివాదానికి కారణం",
+  disputeDescription: "పూర్తి వివరాలు",
+  submitDispute: "పరిష్కారం కోసం సమర్పించండి",
+
+  // Common
+  status: "స్థితి",
+  date: "తేదీ",
+  actions: "చర్యలు",
+  viewDetails: "వివరాలు చూడండి",
+  verified: "ధృవీకరించబడింది",
+  unverified: "ధృవీకరించబడలేదు",
+  filter: "ఫిల్టర్",
+  sortBy: "క్రమబద్ధీకరించు",
+  searchPlaceholder: "పంట పేరు, గ్రామం లేదా జిల్లా ద్వారా శోధించండి...",
+};
