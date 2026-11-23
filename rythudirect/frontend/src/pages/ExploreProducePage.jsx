@@ -76,15 +76,40 @@ const ExploreProducePage = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       
+      {/* Switcher Banner to Customer Quick Mart */}
+      <div className="bg-gradient-to-r from-emerald-800 to-green-700 text-white rounded-2xl p-4 shadow-md flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl">
+            🛒
+          </div>
+          <div>
+            <h4 className="font-bold text-sm text-white">Looking for Daily Kitchen Groceries?</h4>
+            <p className="text-xs text-emerald-100">Order fresh vegetables, fruits & herbs delivered to your doorstep in 15-20 Mins!</p>
+          </div>
+        </div>
+        <Link
+          to="/store"
+          className="px-4 py-2 rounded-xl bg-[#E9C46A] hover:bg-amber-400 text-slate-900 font-black text-xs transition shadow-sm whitespace-nowrap"
+        >
+          Switch to Customer Quick Mart &rarr;
+        </Link>
+      </div>
+
       {/* Header */}
       <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px] uppercase tracking-wider">
+            B2B Wholesale & Auctions
+          </span>
+          <span className="text-xs text-gray-500">• Minimum Order Quantity: 500 kg+</span>
+        </div>
         <h1 className="text-3xl sm:text-4xl font-black text-gray-900">
-          Explore Farm Produce
+          Wholesale Produce Mandi (Dealer Hub)
         </h1>
         <p className="text-xs text-gray-500">
-          Discover active harvest lots directly from certified farmers across Telangana & Andhra Pradesh.
+          Discover bulk truckload harvest lots directly from certified farmers across Telangana & Andhra Pradesh with multi-buyer price bidding.
         </p>
       </div>
 
