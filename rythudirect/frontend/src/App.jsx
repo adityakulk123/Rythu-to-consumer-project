@@ -56,7 +56,7 @@ function App() {
         <CartProvider>
           <BrowserRouter>
             <Routes>
-              
+
               {/* Public & Customer Routes */}
               <Route element={<MainLayout />}>
                 {/* Home defaults to Customer Quick Mart (Blinkit style) */}

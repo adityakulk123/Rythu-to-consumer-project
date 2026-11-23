@@ -67,13 +67,14 @@ def register_user(db: Session, reg_data: UserRegister) -> User:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Buyer profile details (business_name, business_type) are required."
             )
+        is_consumer = (buyer_extra.buyer_category == "INDIVIDUAL_CONSUMER" or buyer_extra.business_type == "Consumer")
         profile = BuyerProfile(
             user_id=user.id,
             business_name=buyer_extra.business_name,
             business_type=buyer_extra.business_type,
             business_address=buyer_extra.business_address,
             buyer_category=buyer_extra.buyer_category,
-            is_verified=False
+            is_verified=True if is_consumer else False
         )
         db.add(profile)
         db.commit()
