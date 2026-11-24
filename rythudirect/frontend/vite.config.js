@@ -9,7 +9,10 @@ export default defineConfig({
     tailwindcss(),
   ],
   server: {
+    host: '0.0.0.0',
     port: 5173,
+    allowedHosts: true, // Allow tunnel domains, ngrok, localtunnel, mobile IP access
+    cors: true,
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
