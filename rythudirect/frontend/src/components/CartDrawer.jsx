@@ -49,6 +49,10 @@ const CartDrawer = ({ onOpenAddressModal }) => {
   };
 
   const handleProceedToCheckout = () => {
+    if (!deliveryAddress || !deliveryAddress.area) {
+      onOpenAddressModal();
+      return;
+    }
     setIsCartOpen(false);
     navigate('/checkout');
   };
@@ -88,23 +92,40 @@ const CartDrawer = ({ onOpenAddressModal }) => {
 
           {/* Delivery Address Bar */}
           <div className="bg-emerald-50 px-4 py-2.5 border-b border-emerald-100 flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2 overflow-hidden pr-2">
-              <MapPin className="w-4 h-4 text-emerald-700 shrink-0" />
-              <div className="truncate">
-                <span className="font-bold text-emerald-950">
-                  Deliver to {deliveryAddress?.type || 'Home'}:
-                </span>{' '}
-                <span className="text-emerald-800 truncate">
-                  {deliveryAddress?.area || 'Banjara Hills, Hyderabad'}
+            {deliveryAddress && deliveryAddress.area ? (
+              <>
+                <div className="flex items-center gap-2 overflow-hidden pr-2">
+                  <MapPin className="w-4 h-4 text-emerald-700 shrink-0" />
+                  <div className="truncate">
+                    <span className="font-bold text-emerald-950">
+                      Deliver to {deliveryAddress.type || 'Home'}:
+                    </span>{' '}
+                    <span className="text-emerald-800 truncate">
+                      {deliveryAddress.houseNo ? `${deliveryAddress.houseNo}, ` : ''}{deliveryAddress.area || deliveryAddress.city}
+                    </span>
+                  </div>
+                </div>
+                <button 
+                  onClick={onOpenAddressModal}
+                  className="text-emerald-700 font-bold hover:underline shrink-0"
+                >
+                  Change
+                </button>
+              </>
+            ) : (
+              <div className="w-full flex items-center justify-between">
+                <span className="text-amber-800 font-semibold flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4 text-amber-600" />
+                  <span>No delivery address added</span>
                 </span>
+                <button
+                  onClick={onOpenAddressModal}
+                  className="px-2.5 py-1 bg-emerald-700 text-white rounded-lg font-bold text-[11px] hover:bg-emerald-800 transition"
+                >
+                  + Add Address
+                </button>
               </div>
-            </div>
-            <button 
-              onClick={onOpenAddressModal}
-              className="text-emerald-700 font-bold hover:underline shrink-0"
-            >
-              Change
-            </button>
+            )}
           </div>
 
           {/* Cart Content */}

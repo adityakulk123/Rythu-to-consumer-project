@@ -77,7 +77,8 @@ export const FRESH_PRODUCTS = [
     discount: '37% OFF',
     rating: 4.8,
     ratingCount: 280,
-    image: 'https://images.unsplash.com/photo-1603569283847-aa295f0d016a?w=600&auto=format&fit=crop&q=80',
+    // Matched: Authentic fresh green lady finger / okra pods
+    image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=600&auto=format&fit=crop&q=80',
     farmer: 'Laxmi Organic Farms',
     origin: 'Ranga Reddy, Telangana',
     harvestedTime: 'Morning fresh harvest',
@@ -149,7 +150,8 @@ export const FRESH_PRODUCTS = [
     discount: '38% OFF',
     rating: 4.7,
     ratingCount: 175,
-    image: 'https://images.unsplash.com/photo-1628773822503-930a84e9eb4a?w=600&auto=format&fit=crop&q=80',
+    // Matched: Glossy deep purple fresh eggplants / brinjals
+    image: 'https://images.unsplash.com/photo-1615484477778-ca3b783256fd?w=600&auto=format&fit=crop&q=80',
     farmer: 'Gautam Farms',
     origin: 'Nalgonda, Telangana',
     harvestedTime: 'Harvested 4 hours ago',
@@ -205,7 +207,8 @@ export const FRESH_PRODUCTS = [
     discount: '40% OFF',
     rating: 4.8,
     ratingCount: 610,
-    image: 'https://images.unsplash.com/photo-1628773822503-930a84e9eb4a?w=600&auto=format&fit=crop&q=80',
+    // Matched: Crisp green fresh coriander / cilantro bunch
+    image: 'https://images.unsplash.com/photo-1588879462719-74d6c6e7f53a?w=600&auto=format&fit=crop&q=80',
     farmer: 'Venkateshwara Herbs',
     origin: 'Sangareddy, Telangana',
     harvestedTime: 'Harvested at dawn',
@@ -223,6 +226,7 @@ export const FRESH_PRODUCTS = [
     discount: '44% OFF',
     rating: 4.8,
     ratingCount: 380,
+    // Matched: Fresh aromatic garden mint leaves
     image: 'https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=600&auto=format&fit=crop&q=80',
     farmer: 'Venkateshwara Herbs',
     origin: 'Sangareddy, Telangana',
@@ -241,7 +245,8 @@ export const FRESH_PRODUCTS = [
     discount: '40% OFF',
     rating: 4.7,
     ratingCount: 450,
-    image: 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?w=600&auto=format&fit=crop&q=80',
+    // Matched: Authentic bright green spicy chillies
+    image: 'https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=600&auto=format&fit=crop&q=80',
     farmer: 'Guntur Green Produce',
     origin: 'Khammam, Telangana',
     harvestedTime: 'Direct farm plucked',
@@ -259,7 +264,8 @@ export const FRESH_PRODUCTS = [
     discount: '38% OFF',
     rating: 4.8,
     ratingCount: 290,
-    image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80',
+    // Matched: Fresh raw unpolished ginger root
+    image: 'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=600&auto=format&fit=crop&q=80',
     farmer: 'Hills Agro',
     origin: 'Adilabad, Telangana',
     harvestedTime: 'Cleaned and unpolished',
@@ -351,7 +357,8 @@ export const FRESH_PRODUCTS = [
     discount: '32% OFF',
     rating: 4.9,
     ratingCount: 310,
-    image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80',
+    // Matched: Ruby red open ripe pomegranate bursting with seeds
+    image: 'https://images.unsplash.com/photo-1557800636-894a64c1696f?w=600&auto=format&fit=crop&q=80',
     farmer: 'Solapur Valley Farms',
     origin: 'Anantapur, AP',
     harvestedTime: 'Freshly harvested',
@@ -387,7 +394,8 @@ export const FRESH_PRODUCTS = [
     discount: '38% OFF',
     rating: 4.8,
     ratingCount: 510,
-    image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80',
+    // Matched: Juicy yellow fresh citrus lemons
+    image: 'https://images.unsplash.com/photo-1590502593747-42a996133562?w=600&auto=format&fit=crop&q=80',
     farmer: 'Balaji Citrus Groves',
     origin: 'Nellore, AP',
     harvestedTime: 'Direct from tree',
@@ -425,7 +433,8 @@ export const FRESH_PRODUCTS = [
     discount: '34% OFF',
     rating: 5.0,
     ratingCount: 780,
-    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80',
+    // Matched: Wooden crate overflowing with assorted fresh farm vegetables
+    image: 'https://images.unsplash.com/photo-1610348725531-843dff563e2c?w=600&auto=format&fit=crop&q=80',
     farmer: 'RythuDirect Cooperative',
     origin: 'Medak & Ranga Reddy',
     harvestedTime: 'Packed fresh in ventilated crate',

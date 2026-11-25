@@ -177,7 +177,7 @@ const OrderTrackingPage = () => {
           <div className="mt-3 flex items-center justify-between text-xs text-slate-600">
             <span className="flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5 text-emerald-700" />
-              <span>Deliver to: {order.deliveryAddress?.houseNo}, {order.deliveryAddress?.area}</span>
+              <span>Deliver to: {order.deliveryAddress?.houseNo ? `${order.deliveryAddress.houseNo}, ` : ''}{order.deliveryAddress?.area || order.deliveryAddress?.city || 'Selected Address'}</span>
             </span>
             <span className="font-semibold text-emerald-700">Distance: 3.2 km</span>
           </div>

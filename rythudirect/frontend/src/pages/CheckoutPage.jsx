@@ -60,6 +60,12 @@ const CheckoutPage = ({ onOpenAddressModal }) => {
   }
 
   const handleCompletePayment = () => {
+    if (!deliveryAddress || !deliveryAddress.area || !deliveryAddress.contactPhone) {
+      alert("Please enter your delivery address and contact number before proceeding.");
+      onOpenAddressModal();
+      return;
+    }
+
     setIsProcessing(true);
 
     // Simulate instant secure gateway transaction
@@ -109,27 +115,39 @@ const CheckoutPage = ({ onOpenAddressModal }) => {
                 <div className="flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-emerald-700" />
                   <h3 className="font-bold text-sm text-slate-900">
-                    Delivery Address ({deliveryAddress?.type || 'Home'})
+                    Delivery Address {deliveryAddress?.type ? `(${deliveryAddress.type})` : ''}
                   </h3>
                 </div>
                 <button
                   onClick={onOpenAddressModal}
                   className="text-xs font-bold text-emerald-700 hover:underline"
                 >
-                  Change
+                  {deliveryAddress && deliveryAddress.area ? 'Change' : '+ Add Address'}
                 </button>
               </div>
 
-              <div className="pt-3 text-xs text-slate-600 space-y-1">
-                <p className="font-bold text-slate-900 text-sm">
-                  {deliveryAddress?.contactName || 'Aditya K.'} • {deliveryAddress?.contactPhone || '9848012345'}
-                </p>
-                <p>{deliveryAddress?.houseNo || 'Flat 402, Green Acres Apt'}, {deliveryAddress?.area || 'Road No. 12, Banjara Hills'}</p>
-                <p>{deliveryAddress?.city || 'Hyderabad'} - {deliveryAddress?.pincode || '500034'}</p>
-                {deliveryAddress?.landmark && (
-                  <p className="text-slate-400">Landmark: {deliveryAddress.landmark}</p>
-                )}
-              </div>
+              {deliveryAddress && deliveryAddress.area ? (
+                <div className="pt-3 text-xs text-slate-600 space-y-1">
+                  <p className="font-bold text-slate-900 text-sm">
+                    {deliveryAddress.contactName} • {deliveryAddress.contactPhone}
+                  </p>
+                  <p>{deliveryAddress.houseNo ? `${deliveryAddress.houseNo}, ` : ''}{deliveryAddress.area}</p>
+                  <p>{deliveryAddress.city} - {deliveryAddress.pincode}</p>
+                  {deliveryAddress.landmark && (
+                    <p className="text-slate-400">Landmark: {deliveryAddress.landmark}</p>
+                  )}
+                </div>
+              ) : (
+                <div className="py-4 text-center">
+                  <p className="text-xs font-semibold text-amber-800 mb-2">No delivery address entered yet.</p>
+                  <button
+                    onClick={onOpenAddressModal}
+                    className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition"
+                  >
+                    + Enter Delivery Address
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Delivery Slot Selection */}

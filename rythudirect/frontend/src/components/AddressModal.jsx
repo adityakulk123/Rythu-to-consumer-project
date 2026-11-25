@@ -1,20 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { X, MapPin, Home, Briefcase, Building } from 'lucide-react';
 
 const AddressModal = ({ isOpen, onClose }) => {
   const { deliveryAddress, setDeliveryAddress } = useCart();
+  const { user } = useAuth();
 
   const [formData, setFormData] = useState({
-    type: deliveryAddress?.type || 'Home',
-    houseNo: deliveryAddress?.houseNo || '',
-    area: deliveryAddress?.area || '',
-    city: deliveryAddress?.city || 'Hyderabad',
-    pincode: deliveryAddress?.pincode || '',
-    landmark: deliveryAddress?.landmark || '',
-    contactName: deliveryAddress?.contactName || '',
-    contactPhone: deliveryAddress?.contactPhone || ''
+    type: 'Home',
+    houseNo: '',
+    area: '',
+    city: 'Hyderabad',
+    pincode: '',
+    landmark: '',
+    contactName: '',
+    contactPhone: ''
   });
+
+  // Whenever modal opens or user/address changes, populate accordingly
+  useEffect(() => {
+    if (isOpen) {
+      if (deliveryAddress) {
+        setFormData({
+          type: deliveryAddress.type || 'Home',
+          houseNo: deliveryAddress.houseNo || '',
+          area: deliveryAddress.area || '',
+          city: deliveryAddress.city || 'Hyderabad',
+          pincode: deliveryAddress.pincode || '',
+          landmark: deliveryAddress.landmark || '',
+          contactName: deliveryAddress.contactName || '',
+          contactPhone: deliveryAddress.contactPhone || ''
+        });
+      } else {
+        // Fresh address for new login: clean empty fields, only user name/phone if logged in
+        setFormData({
+          type: 'Home',
+          houseNo: '',
+          area: user?.village || '',
+          city: user?.district || 'Hyderabad',
+          pincode: user?.pincode || '',
+          landmark: '',
+          contactName: user?.full_name || '',
+          contactPhone: user?.mobile_number || ''
+        });
+      }
+    }
+  }, [isOpen, deliveryAddress, user]);
 
   if (!isOpen) return null;
 

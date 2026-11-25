@@ -18,20 +18,20 @@ export const CartProvider = ({ children }) => {
   // Slide-over cart drawer state
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Delivery Address
+  // Delivery Address: starts completely empty for new logins (no hardcoded defaults)
   const [deliveryAddress, setDeliveryAddress] = useState(() => {
     try {
       const saved = localStorage.getItem('rythu_delivery_address');
-      return saved ? JSON.parse(saved) : {
-        type: 'Home',
-        houseNo: 'Flat 402, Green Acres Apt',
-        area: 'Road No. 12, Banjara Hills',
-        city: 'Hyderabad',
-        pincode: '500034',
-        landmark: 'Near KBR National Park',
-        contactName: 'Aditya K.',
-        contactPhone: '9848012345'
-      };
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Automatically purge any leftover hardcoded sample data
+        if (parsed?.contactName === 'Aditya K.' || parsed?.houseNo?.includes('Flat 402')) {
+          localStorage.removeItem('rythu_delivery_address');
+          return null;
+        }
+        return parsed;
+      }
+      return null;
     } catch (e) {
       return null;
     }
@@ -66,6 +66,8 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     if (deliveryAddress) {
       localStorage.setItem('rythu_delivery_address', JSON.stringify(deliveryAddress));
+    } else {
+      localStorage.removeItem('rythu_delivery_address');
     }
   }, [deliveryAddress]);
 

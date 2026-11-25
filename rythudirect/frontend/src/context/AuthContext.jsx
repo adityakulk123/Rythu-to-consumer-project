@@ -55,6 +55,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('rythu_token');
     localStorage.removeItem('rythu_user');
+    localStorage.removeItem('rythu_delivery_address');
     setToken(null);
     setUser(null);
   };

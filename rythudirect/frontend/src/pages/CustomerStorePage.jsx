@@ -74,15 +74,15 @@ const CustomerStorePage = ({ onOpenAddressModal }) => {
                 </span>
               </div>
               <div className="flex items-center gap-1.5 text-xs text-emerald-100 truncate">
-                <MapPin className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
+                <MapPin className="w-3.5 h-3.5 text-[#E9C46A] shrink-0" />
                 <span className="font-semibold text-white truncate">
-                  {deliveryAddress?.area || 'Banjara Hills, Hyderabad'}
+                  {deliveryAddress ? `${deliveryAddress.houseNo ? deliveryAddress.houseNo + ', ' : ''}${deliveryAddress.area || deliveryAddress.city}` : 'Select Delivery Address'}
                 </span>
                 <button 
                   onClick={onOpenAddressModal}
                   className="text-xs text-[#E9C46A] underline font-bold hover:text-white shrink-0 ml-1"
                 >
-                  Change
+                  {deliveryAddress ? 'Change' : '+ Add Address'}
                 </button>
               </div>
             </div>
