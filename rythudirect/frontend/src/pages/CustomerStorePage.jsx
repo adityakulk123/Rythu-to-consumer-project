@@ -102,25 +102,39 @@ const CustomerStorePage = ({ onOpenAddressModal }) => {
 
         </div>
 
-        {/* Live Search Bar */}
+        {/* Live Search Bar & Quick Suggestion Pills */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-3">
           <div className="relative">
             <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search 'fresh tomatoes', 'organic spinach', 'sweet mangoes', 'red onions'..."
+              placeholder="Search 'Jowar', 'Sona Masoori Rice', 'Kusumalu', 'Fresh Tomatoes', 'Palak', 'Lady Finger'..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-2.5 rounded-2xl bg-white text-slate-800 placeholder-slate-400 text-sm shadow-md outline-none focus:ring-2 focus:ring-[#E9C46A] font-medium"
+              className="w-full pl-11 pr-20 py-2.5 rounded-2xl bg-white text-slate-800 placeholder-slate-400 text-sm shadow-md outline-none focus:ring-2 focus:ring-[#E9C46A] font-medium"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-600"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
               >
                 Clear
               </button>
             )}
+          </div>
+
+          {/* Quick Tag Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pt-2 text-[11px] text-emerald-100 no-scrollbar">
+            <span className="text-emerald-300 font-bold shrink-0">Popular:</span>
+            {['Jowar (జొన్నలు)', 'Sona Masoori Rice', 'Kusumalu Seeds', 'Tomatoes', 'Toor Dal', 'Groundnut Oil', 'Lady Finger'].map((tag) => (
+              <button
+                key={tag}
+                onClick={() => setSearchQuery(tag.split(' ')[0])}
+                className="bg-emerald-700/60 hover:bg-emerald-700 px-2.5 py-0.5 rounded-full whitespace-nowrap transition cursor-pointer border border-emerald-600/40 text-white font-medium"
+              >
+                {tag}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -163,18 +177,38 @@ const CustomerStorePage = ({ onOpenAddressModal }) => {
         <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 no-scrollbar">
           {PRODUCE_CATEGORIES.map((cat) => {
             const isSelected = selectedCategory === cat.id;
+            const count = cat.id === 'all' 
+              ? FRESH_PRODUCTS.length 
+              : FRESH_PRODUCTS.filter(p => p.category === cat.id).length;
+            const emoji = 
+              cat.id === 'all' ? '✨' :
+              cat.id === 'vegetables' ? '🥕' :
+              cat.id === 'fruits' ? '🍎' :
+              cat.id === 'leafy' ? '🥬' :
+              cat.id === 'grains' ? '🌾' :
+              cat.id === 'pulses' ? '🫘' :
+              cat.id === 'oils' ? '🫒' : '📦';
+
             return (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs flex items-center gap-2 ${
+                className={`px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs flex items-center gap-2 cursor-pointer ${
                   isSelected
-                    ? 'bg-emerald-800 text-white shadow-md shadow-emerald-800/30 scale-105'
+                    ? 'bg-emerald-800 text-white shadow-md shadow-emerald-800/30 scale-105 ring-2 ring-emerald-500'
                     : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
                 }`}
               >
+                <span className="text-sm">{emoji}</span>
                 <span>{cat.name}</span>
-                <span className="text-[10px] opacity-75 font-normal">({cat.telugu})</span>
+                <span className={`text-[10px] font-normal ${isSelected ? 'text-emerald-200' : 'text-slate-400'}`}>
+                  ({cat.telugu})
+                </span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold font-mono ${
+                  isSelected ? 'bg-emerald-700 text-[#E9C46A]' : 'bg-slate-100 text-slate-600'
+                }`}>
+                  {count}
+                </span>
               </button>
             );
           })}

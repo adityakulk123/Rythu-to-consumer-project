@@ -1,18 +1,21 @@
-// Comprehensive Fresh Produce Catalog (Vegetables, Fruits, Leafy Greens, Herbs)
+// Comprehensive Fresh Produce Catalog (Vegetables, Fruits, Leafy Greens, Farm Grains & Staples)
 // Direct-from-Farm fresh items for Quick-Commerce / Blinkit-style consumer store
 
 export const PRODUCE_CATEGORIES = [
   { id: 'all', name: 'All Fresh', telugu: 'అన్నీ', icon: 'Sparkles' },
   { id: 'vegetables', name: 'Daily Vegetables', telugu: 'కూరగాయలు', icon: 'Carrot' },
-  { id: 'leafy', name: 'Leafy Greens', telugu: 'ఆకుకూరలు', icon: 'Salad' },
   { id: 'fruits', name: 'Fresh Fruits', telugu: 'తాజా పండ్లు', icon: 'Apple' },
-  { id: 'root', name: 'Roots & Tubers', telugu: 'దుంపలు', icon: 'Layers' },
-  { id: 'herbs', name: 'Herbs & Seasoning', telugu: 'కొత్తిమీర & మసాలాలు', icon: 'Flower2' },
+  { id: 'leafy', name: 'Leafy Greens & Herbs', telugu: 'ఆకుకూరలు & కొత్తిమీర', icon: 'Salad' },
+  { id: 'grains', name: 'Farm Grains & Millets', telugu: 'జొన్నలు & బియ్యం', icon: 'Wheat' },
+  { id: 'pulses', name: 'Pulses & Kusumalu', telugu: 'పప్పులు & కుసుమలు', icon: 'Layers' },
+  { id: 'oils', name: 'Cold-Pressed Oils', telugu: 'గానుగ నూనెలు', icon: 'Droplets' },
   { id: 'combos', name: 'Farm Combos', telugu: 'రైతు కాంబోలు', icon: 'Package' }
 ];
 
 export const FRESH_PRODUCTS = [
-  // --- DAILY VEGETABLES ---
+  // ==========================================
+  // 1. DAILY VEGETABLES
+  // ==========================================
   {
     id: 'veg-tomato-hybrid',
     name: 'Desi Country Tomatoes (నాటు టమోటా)',
@@ -26,7 +29,7 @@ export const FRESH_PRODUCTS = [
     image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600&auto=format&fit=crop&q=80',
     farmer: 'Ramanaiah Farms',
     origin: 'Medak, Telangana',
-    harvestedTime: 'Harvested 5 hours ago',
+    harvestedTime: 'Harvested 4 hours ago',
     deliveryTime: '15-20 Mins',
     description: 'Juicy, naturally ripened desi tomatoes rich in lycopene. Perfect for traditional rasam, curry, and dal.',
     inStock: true
@@ -52,7 +55,7 @@ export const FRESH_PRODUCTS = [
   {
     id: 'veg-potato-fresh',
     name: 'Fresh Farm Potatoes (బంగాళాదుంపలు)',
-    category: 'root',
+    category: 'vegetables',
     unit: '1 kg',
     price: 28,
     originalPrice: 40,
@@ -77,13 +80,48 @@ export const FRESH_PRODUCTS = [
     discount: '37% OFF',
     rating: 4.8,
     ratingCount: 280,
-    // Matched: Authentic fresh green lady finger / okra pods
-    image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=600&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=600&auto=format&fit=crop&q=80',
     farmer: 'Laxmi Organic Farms',
     origin: 'Ranga Reddy, Telangana',
     harvestedTime: 'Morning fresh harvest',
     deliveryTime: '15-20 Mins',
     description: 'Crisp, bright green tender okra. Zero bitterness, snaps cleanly at the tip.',
+    inStock: true
+  },
+  {
+    id: 'veg-sweet-corn',
+    name: 'Farm Fresh Sweet Corn / Cob (మొక్కజొన్న పొత్తులు)',
+    category: 'vegetables',
+    unit: '2 pieces',
+    price: 32,
+    originalPrice: 48,
+    discount: '33% OFF',
+    rating: 4.9,
+    ratingCount: 310,
+    image: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Mahabubnagar Maize Farms',
+    origin: 'Jadcherla, Telangana',
+    harvestedTime: 'Plucked today',
+    deliveryTime: '15-20 Mins',
+    description: 'Plump golden sweet corn cobs, juicy and tender. Ideal for boiling, steaming, or roasting on coal.',
+    inStock: true
+  },
+  {
+    id: 'veg-green-peas',
+    name: 'Fresh Tender Green Peas / Matar (పచ్చి బఠానీలు)',
+    category: 'vegetables',
+    unit: '500 g pod',
+    price: 45,
+    originalPrice: 70,
+    discount: '35% OFF',
+    rating: 4.8,
+    ratingCount: 240,
+    image: 'https://images.unsplash.com/photo-1587735243615-c03f25aaff15?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Vikarabad Valley Cultivators',
+    origin: 'Vikarabad, Telangana',
+    harvestedTime: 'Morning harvest',
+    deliveryTime: '15-20 Mins',
+    description: 'Naturally sweet and juicy green pea pods. Easy to shell and cook in aloo matar or pulao.',
     inStock: true
   },
   {
@@ -125,7 +163,7 @@ export const FRESH_PRODUCTS = [
   {
     id: 'veg-carrot-desi',
     name: 'Sweet Orange Carrots (క్యారెట్)',
-    category: 'root',
+    category: 'vegetables',
     unit: '500 g',
     price: 25,
     originalPrice: 38,
@@ -150,8 +188,7 @@ export const FRESH_PRODUCTS = [
     discount: '38% OFF',
     rating: 4.7,
     ratingCount: 175,
-    // Matched: Glossy deep purple fresh eggplants / brinjals
-    image: 'https://images.unsplash.com/photo-1615484477778-ca3b783256fd?w=600&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&auto=format&fit=crop&q=80',
     farmer: 'Gautam Farms',
     origin: 'Nalgonda, Telangana',
     harvestedTime: 'Harvested 4 hours ago',
@@ -178,7 +215,9 @@ export const FRESH_PRODUCTS = [
     inStock: true
   },
 
-  // --- LEAFY GREENS & HERBS ---
+  // ==========================================
+  // 2. LEAFY GREENS & FRESH HERBS
+  // ==========================================
   {
     id: 'leaf-palak-spinach',
     name: 'Hydroponic Tender Palak / Spinach (పాలకూర)',
@@ -200,15 +239,14 @@ export const FRESH_PRODUCTS = [
   {
     id: 'herb-coriander',
     name: 'Aromatic Desi Coriander / Kothimeera (కొత్తిమీర)',
-    category: 'herbs',
+    category: 'leafy',
     unit: '1 fresh bunch (150g)',
     price: 12,
     originalPrice: 20,
     discount: '40% OFF',
     rating: 4.8,
     ratingCount: 610,
-    // Matched: Crisp green fresh coriander / cilantro bunch
-    image: 'https://images.unsplash.com/photo-1588879462719-74d6c6e7f53a?w=600&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1596797882870-8c33deeac224?w=600&auto=format&fit=crop&q=80',
     farmer: 'Venkateshwara Herbs',
     origin: 'Sangareddy, Telangana',
     harvestedTime: 'Harvested at dawn',
@@ -219,15 +257,14 @@ export const FRESH_PRODUCTS = [
   {
     id: 'herb-mint-pudina',
     name: 'Fresh Mint / Pudina (పుదీనా)',
-    category: 'herbs',
+    category: 'leafy',
     unit: '1 bunch (100g)',
     price: 10,
     originalPrice: 18,
     discount: '44% OFF',
     rating: 4.8,
     ratingCount: 380,
-    // Matched: Fresh aromatic garden mint leaves
-    image: 'https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=600&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1628556270448-4d4e4148e1b1?w=600&auto=format&fit=crop&q=80',
     farmer: 'Venkateshwara Herbs',
     origin: 'Sangareddy, Telangana',
     harvestedTime: 'Fresh morning harvest',
@@ -236,16 +273,33 @@ export const FRESH_PRODUCTS = [
     inStock: true
   },
   {
+    id: 'leaf-methi-fenugreek',
+    name: 'Desi Small-Leaf Methi / Fenugreek (మెంతికూర)',
+    category: 'leafy',
+    unit: '2 bunches (200g)',
+    price: 18,
+    originalPrice: 28,
+    discount: '35% OFF',
+    rating: 4.9,
+    ratingCount: 270,
+    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Nalgonda Organic Greens',
+    origin: 'Nalgonda, Telangana',
+    harvestedTime: 'Plucked early dawn',
+    deliveryTime: '15-20 Mins',
+    description: 'Flavorful small-leaf country methi greens. Known to help regulate blood sugar levels.',
+    inStock: true
+  },
+  {
     id: 'herb-green-chilli',
     name: 'Spicy Green Chillies / Pachi Mirchi (పచ్చిమిర్చి)',
-    category: 'herbs',
+    category: 'leafy',
     unit: '250 g',
     price: 15,
     originalPrice: 25,
     discount: '40% OFF',
     rating: 4.7,
     ratingCount: 450,
-    // Matched: Authentic bright green spicy chillies
     image: 'https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=600&auto=format&fit=crop&q=80',
     farmer: 'Guntur Green Produce',
     origin: 'Khammam, Telangana',
@@ -257,14 +311,13 @@ export const FRESH_PRODUCTS = [
   {
     id: 'herb-ginger-fresh',
     name: 'Fresh Farm Ginger / Allam (అల్లం)',
-    category: 'root',
+    category: 'leafy',
     unit: '250 g',
     price: 25,
     originalPrice: 40,
     discount: '38% OFF',
     rating: 4.8,
     ratingCount: 290,
-    // Matched: Fresh raw unpolished ginger root
     image: 'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=600&auto=format&fit=crop&q=80',
     farmer: 'Hills Agro',
     origin: 'Adilabad, Telangana',
@@ -276,7 +329,7 @@ export const FRESH_PRODUCTS = [
   {
     id: 'herb-garlic-desi',
     name: 'Desi Country Garlic / Vellulli (వెల్లుల్లి)',
-    category: 'root',
+    category: 'leafy',
     unit: '250 g',
     price: 45,
     originalPrice: 70,
@@ -292,7 +345,9 @@ export const FRESH_PRODUCTS = [
     inStock: true
   },
 
-  // --- FRESH FRUITS ---
+  // ==========================================
+  // 3. FRESH ORCHARD FRUITS
+  // ==========================================
   {
     id: 'fruit-banana-yelakki',
     name: 'Sweet Yelakki / Elaichi Bananas (ఏలకులు అరటిపండ్లు)',
@@ -357,7 +412,6 @@ export const FRESH_PRODUCTS = [
     discount: '32% OFF',
     rating: 4.9,
     ratingCount: 310,
-    // Matched: Ruby red open ripe pomegranate bursting with seeds
     image: 'https://images.unsplash.com/photo-1557800636-894a64c1696f?w=600&auto=format&fit=crop&q=80',
     farmer: 'Solapur Valley Farms',
     origin: 'Anantapur, AP',
@@ -394,8 +448,7 @@ export const FRESH_PRODUCTS = [
     discount: '38% OFF',
     rating: 4.8,
     ratingCount: 510,
-    // Matched: Juicy yellow fresh citrus lemons
-    image: 'https://images.unsplash.com/photo-1590502593747-42a996133562?w=600&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1534790566855-4cb788d389ec?w=600&auto=format&fit=crop&q=80',
     farmer: 'Balaji Citrus Groves',
     origin: 'Nellore, AP',
     harvestedTime: 'Direct from tree',
@@ -421,8 +474,310 @@ export const FRESH_PRODUCTS = [
     description: 'Deep red, crisp and hydrating sweet watermelon. 100% natural, thirst-quenching taste.',
     inStock: true
   },
+  {
+    id: 'fruit-guava-thai',
+    name: 'Crisp White Thai Guava / Jamakayalu (జామపండ్లు)',
+    category: 'fruits',
+    unit: '1 kg (approx. 3-4 pcs)',
+    price: 65,
+    originalPrice: 95,
+    discount: '31% OFF',
+    rating: 4.8,
+    ratingCount: 260,
+    image: 'https://images.unsplash.com/photo-1620706857370-e1b9770e8bb1?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Ayodhya Guava Orchards',
+    origin: 'Medak, Telangana',
+    harvestedTime: 'Plucked this morning',
+    deliveryTime: '15-20 Mins',
+    description: 'Crunchy, sweet white-fleshed big guavas. Loaded with 4 times more Vitamin C than oranges.',
+    inStock: true
+  },
+  {
+    id: 'fruit-mosambi-citrus',
+    name: 'Sweet Mosambi / Sweet Lime (బత్తాయి)',
+    category: 'fruits',
+    unit: '1 kg (5-6 pcs)',
+    price: 58,
+    originalPrice: 85,
+    discount: '32% OFF',
+    rating: 4.7,
+    ratingCount: 190,
+    image: 'https://images.unsplash.com/photo-1547514701-42782101795e?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Nalgonda Citrus Belt',
+    origin: 'Miryalaguda, Telangana',
+    harvestedTime: 'Direct orchard shipment',
+    deliveryTime: '15-20 Mins',
+    description: 'Juicy, sweet mosambi fruits without excessive sourness. Perfect for fresh morning energy juice.',
+    inStock: true
+  },
+  {
+    id: 'fruit-tender-coconut',
+    name: 'Fresh Green Tender Coconut (లేత కొబ్బరి బొండాలు)',
+    category: 'fruits',
+    unit: '1 piece (approx. 350ml water)',
+    price: 45,
+    originalPrice: 60,
+    discount: '25% OFF',
+    rating: 4.9,
+    ratingCount: 480,
+    image: 'https://images.unsplash.com/photo-1544376798-89aa6b82c6cd?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Konaseema Coconut Producers',
+    origin: 'East Godavari, AP',
+    harvestedTime: 'Hand-cut yesterday',
+    deliveryTime: '15-20 Mins',
+    description: 'Electrolyte-rich sweet coconut water with tender malai cream. 100% natural hydration.',
+    inStock: true
+  },
 
-  // --- FARM COMBOS ---
+  // ==========================================
+  // 4. FARM GRAINS, RICE & MILLETS (RAW PRODUCTS FROM FARMER)
+  // ==========================================
+  {
+    id: 'grain-jowar-sorghum',
+    name: 'Pure White Jowar / Sorghum (తెల్ల జొన్నలు)',
+    category: 'grains',
+    unit: '1 kg Bag',
+    price: 58,
+    originalPrice: 85,
+    discount: '32% OFF',
+    rating: 4.9,
+    ratingCount: 510,
+    image: 'https://images.unsplash.com/photo-1574316071802-0d684efa7bf5?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Mallikarjun Millets Farm',
+    origin: 'Tandur, Telangana',
+    harvestedTime: 'Unpolished traditional harvest',
+    deliveryTime: '15-20 Mins',
+    description: '100% gluten-free, whole farm-harvested white jowar pearls. Perfect for healthy jowar roti, sankati, and porridge.',
+    inStock: true
+  },
+  {
+    id: 'grain-rice-sona-masoori',
+    name: 'Old Crop Sona Masoori Rice (పాత సోనా మసూరి బియ్యం)',
+    category: 'grains',
+    unit: '5 kg Bag',
+    price: 285,
+    originalPrice: 390,
+    discount: '27% OFF',
+    rating: 5.0,
+    ratingCount: 890,
+    image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Tungabhadra Basin Rice Mill',
+    origin: 'Kurnool / Raichur Belt',
+    harvestedTime: '12-months naturally aged paddy',
+    deliveryTime: '15-20 Mins',
+    description: 'Lightweight, fragrant, slender grain Sona Masoori rice. Cooks fluffy without sticking. Chemical free.',
+    inStock: true
+  },
+  {
+    id: 'grain-rice-brown-organic',
+    name: 'Single-Polished Brown Rice (సేంద్రీయ ముడి బియ్యం)',
+    category: 'grains',
+    unit: '1 kg Bag',
+    price: 75,
+    originalPrice: 110,
+    discount: '32% OFF',
+    rating: 4.8,
+    ratingCount: 320,
+    image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Sri Rama Organic Society',
+    origin: 'Karimnagar, Telangana',
+    harvestedTime: 'Direct farmer milling',
+    deliveryTime: '15-20 Mins',
+    description: 'Rich in dietary bran, minerals and vitamin B. Helps control blood sugar and promotes gut health.',
+    inStock: true
+  },
+  {
+    id: 'grain-ragi-millet',
+    name: 'Organic Finger Millet / Ragi (సేంద్రీయ రాగులు)',
+    category: 'grains',
+    unit: '1 kg Bag',
+    price: 52,
+    originalPrice: 75,
+    discount: '31% OFF',
+    rating: 4.9,
+    ratingCount: 410,
+    image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Deccan Millets Cooperative',
+    origin: 'Mahabubnagar, Telangana',
+    harvestedTime: 'Naturally stone cleaned',
+    deliveryTime: '15-20 Mins',
+    description: 'Calcium-dense red ragi grains. Excellent for healthy ragi sankati, java porridge, and dosas.',
+    inStock: true
+  },
+
+  // ==========================================
+  // 5. PULSES, KUSUMALU & RAW FARM SPECIALS
+  // ==========================================
+  {
+    id: 'grain-kusumalu-safflower',
+    name: 'Raw Farm Kusumalu / Safflower Seeds (కుసుమ గింజలు)',
+    category: 'pulses',
+    unit: '500 g Bag',
+    price: 68,
+    originalPrice: 95,
+    discount: '28% OFF',
+    rating: 4.9,
+    ratingCount: 290,
+    image: 'https://images.unsplash.com/photo-1471193945509-9ad0617afabf?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Deccan Dryland Growers',
+    origin: 'Adilabad / Tandur Belt',
+    harvestedTime: 'Sun-dried natural harvest',
+    deliveryTime: '15-20 Mins',
+    description: 'Authentic raw कुसुम / Kusumalu seeds. Extremely rich in linoleic acid, ideal for healthy heart and traditional roasting.',
+    inStock: true
+  },
+  {
+    id: 'grain-toor-dal-kandipappu',
+    name: 'Unpolished Desi Toor Dal (నాటు కందిపప్పు)',
+    category: 'pulses',
+    unit: '1 kg Pack',
+    price: 155,
+    originalPrice: 210,
+    discount: '26% OFF',
+    rating: 4.9,
+    ratingCount: 670,
+    image: 'https://images.unsplash.com/photo-1546548970-71785318a17b?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Tandur GI-Tag Dal Growers',
+    origin: 'Tandur, Telangana',
+    harvestedTime: 'Naturally stone-milled',
+    deliveryTime: '15-20 Mins',
+    description: 'Tandur GI-certified premium desi red gram / toor dal. Rich aroma, cooks into creamy golden dal.',
+    inStock: true
+  },
+  {
+    id: 'grain-chana-dal-fresh',
+    name: 'Fresh Farm Chana Dal (పచ్చి శనగపప్పు)',
+    category: 'pulses',
+    unit: '1 kg Pack',
+    price: 92,
+    originalPrice: 130,
+    discount: '29% OFF',
+    rating: 4.8,
+    ratingCount: 380,
+    image: 'https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Nalgonda Pulses Co-op',
+    origin: 'Nalgonda, Telangana',
+    harvestedTime: 'Unpolished and chemical-free',
+    deliveryTime: '15-20 Mins',
+    description: 'Wholesome, high-protein yellow bengal gram dal. Excellent for tadka, vada, and traditional sweets.',
+    inStock: true
+  },
+  {
+    id: 'grain-moong-dal',
+    name: 'Unpolished Desi Moong Dal / Pesalu (పచ్చి పెసరపప్పు)',
+    category: 'pulses',
+    unit: '1 kg Pack',
+    price: 135,
+    originalPrice: 180,
+    discount: '25% OFF',
+    rating: 4.9,
+    ratingCount: 360,
+    image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Medak Organic Pulse Growers',
+    origin: 'Medak, Telangana',
+    harvestedTime: 'New season harvest',
+    deliveryTime: '15-20 Mins',
+    description: 'Split yellow and green moong dal, easy to digest and rich in plant protein. Essential for moong dal khichdi and pesarattu.',
+    inStock: true
+  },
+  {
+    id: 'grain-urad-dal',
+    name: 'Whole Black Urad / Minumulu (నల్ల మినుములు)',
+    category: 'pulses',
+    unit: '1 kg Bag',
+    price: 140,
+    originalPrice: 195,
+    discount: '28% OFF',
+    rating: 4.8,
+    ratingCount: 290,
+    image: 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Guntur Pulse Producers',
+    origin: 'Khammam / Guntur Belt',
+    harvestedTime: 'Traditional farm harvest',
+    deliveryTime: '15-20 Mins',
+    description: 'Whole unpolished black gram. High fiber and protein, provides superior fluffiness for authentic South Indian idli and dosa batter.',
+    inStock: true
+  },
+  {
+    id: 'grain-groundnuts-peanuts',
+    name: 'Raw Farm Peanuts / Palleelu (వేరుశెనగ / పల్లీలు)',
+    category: 'pulses',
+    unit: '1 kg Bag',
+    price: 125,
+    originalPrice: 175,
+    discount: '28% OFF',
+    rating: 4.9,
+    ratingCount: 520,
+    image: 'https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Rayalaseema Groundnut Farmers',
+    origin: 'Anantapur, AP',
+    harvestedTime: 'New crop sun-dried',
+    deliveryTime: '15-20 Mins',
+    description: 'Plump, oil-rich raw peanuts with pink skin. Perfect for morning breakfast chutney, roasting, and snacks.',
+    inStock: true
+  },
+  {
+    id: 'grain-sesame-nuvvulu',
+    name: 'Natural White Sesame Seeds / Nuvvulu (నువ్వులు)',
+    category: 'pulses',
+    unit: '250 g Pack',
+    price: 55,
+    originalPrice: 80,
+    discount: '31% OFF',
+    rating: 4.9,
+    ratingCount: 230,
+    image: 'https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Warangal Agro Fields',
+    origin: 'Warangal, Telangana',
+    harvestedTime: 'Raw cleaned seeds',
+    deliveryTime: '15-20 Mins',
+    description: 'Calcium powerhouse white til / sesame seeds. Essential for laddu, chikki, and savory podis.',
+    inStock: true
+  },
+  {
+    id: 'farm-jaggery-bellam',
+    name: 'Chemical-Free Farm Jaggery (సేంద్రీయ చెరకు బెల్లం)',
+    category: 'pulses',
+    unit: '1 kg Block',
+    price: 65,
+    originalPrice: 95,
+    discount: '31% OFF',
+    rating: 4.9,
+    ratingCount: 440,
+    image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Zaheerabad Sugarcane Farmers',
+    origin: 'Sangareddy, Telangana',
+    harvestedTime: 'Boiled fresh from sugarcane juice',
+    deliveryTime: '15-20 Mins',
+    description: 'Pure, dark brown country jaggery made without sodium hydrosulphite chemical bleaching. Rich in natural iron.',
+    inStock: true
+  },
+
+  // ==========================================
+  // 6. COLD-PRESSED WOOD CHEKKU OILS
+  // ==========================================
+  {
+    id: 'oil-groundnut-coldpressed',
+    name: 'Wood Cold-Pressed Groundnut Oil (గానుగ వేరుశెనగ నూనె)',
+    category: 'oils',
+    unit: '1 Litre Bottle',
+    price: 215,
+    originalPrice: 280,
+    discount: '23% OFF',
+    rating: 5.0,
+    ratingCount: 390,
+    image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80',
+    farmer: 'Shadnagar Cold-Press Mill',
+    origin: 'Shadnagar, Telangana',
+    harvestedTime: 'Single cold expeller extraction',
+    deliveryTime: '15-20 Mins',
+    description: '100% pure unrefined wood-pressed peanut oil with natural aroma and high smoke point. Zero chemical additives or preservatives.',
+    inStock: true
+  },
+
+  // ==========================================
+  // 7. FARM COMBOS & FAMILY PACKS
+  // ==========================================
   {
     id: 'combo-daily-veggie-box',
     name: 'Essential Daily Sabzi Box (రోజువారీ కూరగాయల బాక్స్)',
@@ -433,8 +788,7 @@ export const FRESH_PRODUCTS = [
     discount: '34% OFF',
     rating: 5.0,
     ratingCount: 780,
-    // Matched: Wooden crate overflowing with assorted fresh farm vegetables
-    image: 'https://images.unsplash.com/photo-1610348725531-843dff563e2c?w=600&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80',
     farmer: 'RythuDirect Cooperative',
     origin: 'Medak & Ranga Reddy',
     harvestedTime: 'Packed fresh in ventilated crate',

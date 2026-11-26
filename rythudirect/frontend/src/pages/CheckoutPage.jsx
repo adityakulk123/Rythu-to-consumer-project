@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { 
@@ -12,7 +12,10 @@ import {
   CheckCircle2, 
   Bike,
   Sparkles,
-  Lock
+  Lock,
+  PackageCheck,
+  ArrowRight,
+  ShoppingBag
 } from 'lucide-react';
 
 const CheckoutPage = ({ onOpenAddressModal }) => {
@@ -36,8 +39,157 @@ const CheckoutPage = ({ onOpenAddressModal }) => {
   const [upiId, setUpiId] = useState('');
   const [deliverySlot, setDeliverySlot] = useState('Instant (15-20 mins)');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [orderConfirmed, setOrderConfirmed] = useState(null);
+  const [countdown, setCountdown] = useState(8);
 
-  if (cartItems.length === 0) {
+  // Auto-redirect timer after successful order placement
+  useEffect(() => {
+    if (!orderConfirmed) return;
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          navigate(`/order-tracking/${orderConfirmed.orderId}`);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [orderConfirmed, navigate]);
+
+  // If order was confirmed, display authentic Swiggy / Amazon / Blinkit celebration screen
+  if (orderConfirmed) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-slate-50 to-white flex items-center justify-center p-4 sm:p-6 py-12">
+        <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl border border-emerald-100 overflow-hidden text-center relative animate-fade-in">
+          
+          {/* Confetti & Celebration Top Banner */}
+          <div className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-green-600 px-6 pt-8 pb-10 text-white relative">
+            <div className="absolute top-3 left-4 text-emerald-200/50 text-xs font-mono">
+              RythuDirect 15m Express
+            </div>
+            <div className="absolute top-3 right-4 flex items-center gap-1 text-[11px] bg-emerald-800/80 px-2 py-0.5 rounded-full font-bold text-emerald-200">
+              <Sparkles className="w-3 h-3 text-[#E9C46A]" />
+              <span>Verified Payment</span>
+            </div>
+
+            {/* Pulsing Animated Checkmark Circle */}
+            <div className="w-20 h-20 mx-auto rounded-full bg-white/20 backdrop-blur-md p-2 flex items-center justify-center shadow-xl ring-8 ring-white/10 mb-4 animate-bounce">
+              <div className="w-16 h-16 rounded-full bg-white text-emerald-600 flex items-center justify-center shadow-lg">
+                <CheckCircle2 className="w-11 h-11 text-emerald-600 stroke-[2.5]" />
+              </div>
+            </div>
+
+            <h1 className="text-2xl font-black text-white tracking-tight">
+              Order Placed Successfully! 🎉
+            </h1>
+            <p className="text-sm font-semibold text-emerald-100 mt-1">
+              ఆర్డర్ విజయవంతంగా నమోదైంది!
+            </p>
+            <p className="text-xs text-emerald-200/90 mt-2 max-w-xs mx-auto">
+              Direct from local Telangana farmers to your doorstep in 15-20 minutes.
+            </p>
+          </div>
+
+          {/* Order Details Body */}
+          <div className="p-6 text-left space-y-4">
+            
+            {/* Order Summary Strip */}
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 space-y-2.5 text-xs">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                <span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Order ID</span>
+                <span className="font-mono font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">
+                  #{orderConfirmed.orderId}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Amount Paid</span>
+                <span className="font-black text-emerald-800 text-sm">
+                  ₹{orderConfirmed.finalTotal}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Payment Method</span>
+                <span className="font-bold text-slate-800 flex items-center gap-1">
+                  <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
+                  {orderConfirmed.paymentMethod}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Estimated Delivery</span>
+                <span className="font-extrabold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  15-20 Mins
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Assigned Delivery Hero</span>
+                <span className="font-bold text-slate-800 flex items-center gap-1">
+                  <Bike className="w-3.5 h-3.5 text-blue-600" />
+                  Ramesh Goud (TS 09 AB 4521)
+                </span>
+              </div>
+
+              {orderConfirmed.deliveryAddress && (
+                <div className="pt-2 border-t border-slate-200">
+                  <span className="text-slate-400 block text-[10px] uppercase font-bold mb-0.5">Delivery Address</span>
+                  <p className="text-slate-700 font-medium truncate">
+                    {orderConfirmed.deliveryAddress.houseNo ? `${orderConfirmed.deliveryAddress.houseNo}, ` : ''}
+                    {orderConfirmed.deliveryAddress.area}, {orderConfirmed.deliveryAddress.city}
+                  </p>
+                  <p className="text-slate-500 text-[11px]">
+                    Contact: {orderConfirmed.deliveryAddress.contactName} ({orderConfirmed.deliveryAddress.contactPhone})
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Farm Fresh Guarantee Note */}
+            <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center gap-3">
+              <PackageCheck className="w-5 h-5 text-emerald-700 shrink-0" />
+              <p className="text-[11px] text-emerald-900 leading-snug">
+                <strong>Packaged with Zero Chemical Sprays:</strong> Your produce was harvested less than 6 hours ago from verified local farms.
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-2.5 pt-2">
+              <button
+                onClick={() => navigate(`/order-tracking/${orderConfirmed.orderId}`)}
+                className="w-full py-3.5 px-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-700/25 transition-all hover:scale-[1.02] cursor-pointer"
+              >
+                <Bike className="w-5 h-5 animate-pulse" />
+                <span>Track Live Delivery (16 Mins)</span>
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </button>
+
+              <Link
+                to="/store"
+                className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition text-center"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                <span>Continue Shopping</span>
+              </Link>
+            </div>
+
+            {/* Countdown Helper */}
+            <p className="text-[11px] text-center text-slate-400">
+              Auto-navigating to live delivery route in <strong className="text-emerald-700">{countdown}s</strong>...
+            </p>
+
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Cart empty guard (only when not in confirmed order state)
+  if (cartItems.length === 0 && !orderConfirmed) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="bg-white p-8 rounded-3xl shadow-xl text-center max-w-sm w-full">
@@ -46,7 +198,7 @@ const CheckoutPage = ({ onOpenAddressModal }) => {
           </div>
           <h2 className="text-xl font-bold text-slate-900">Your basket is empty</h2>
           <p className="text-xs text-slate-500 mt-1 mb-6">
-            Please add fresh vegetables and fruits to proceed with checkout.
+            Please add fresh vegetables, fruits, or farm staples to proceed with checkout.
           </p>
           <Link
             to="/store"
@@ -81,8 +233,8 @@ const CheckoutPage = ({ onOpenAddressModal }) => {
       });
 
       setIsProcessing(false);
-      navigate(`/order-tracking/${order.orderId}`);
-    }, 1800);
+      setOrderConfirmed(order);
+    }, 1500);
   };
 
   return (
