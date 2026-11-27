@@ -21,7 +21,7 @@ class CropCategoryResponse(CropCategoryBase):
 class ProduceImageResponse(BaseModel):
     id: int
     image_url: str
-    is_primary: bool
+    is_primary: Optional[bool] = False
 
     class Config:
         from_attributes = True
@@ -89,7 +89,7 @@ class ProduceResponse(BaseModel):
     delivery_available: bool
     pickup_available: bool
     status: str
-    created_at: datetime
+    created_at: Optional[datetime] = None
     images: List[ProduceImageResponse] = []
     farmer: Optional[FarmerBasicInfo] = None
     category_name: Optional[str] = None

@@ -35,7 +35,7 @@ def _format_produce_response(produce: ProduceListing, current_user: Optional[Use
         ProduceImageResponse(
             id=img.id,
             image_url=img.image_url,
-            is_primary=img.is_primary
+            is_primary=bool(getattr(img, 'is_primary', False))
         ) for img in produce.images
     ]
 
