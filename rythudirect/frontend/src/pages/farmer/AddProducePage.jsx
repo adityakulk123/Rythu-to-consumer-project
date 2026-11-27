@@ -73,6 +73,34 @@ const AddProducePage = () => {
         pickup_available: pickupAvailable,
         image_urls: imageUrl ? [imageUrl] : [],
       });
+
+      // Synchronize to consumer store immediately via local cache
+      try {
+        const existing = JSON.parse(localStorage.getItem('rythu_custom_produce') || '[]');
+        const isFruit = (cropName.toLowerCase().includes('kiwi') || cropName.toLowerCase().includes('fruit') || cropName.toLowerCase().includes('apple') || cropName.toLowerCase().includes('mango') || cropName.toLowerCase().includes('banana'));
+        const newProduct = {
+          id: `custom-farm-${Date.now()}`,
+          name: cropName,
+          category: isFruit ? 'fruits' : 'vegetables',
+          unit: `${quantity} ${unit}`,
+          price: Math.round(askPrice),
+          originalPrice: Math.round(askPrice * 1.3),
+          discount: '23% OFF',
+          rating: 4.9,
+          ratingCount: 15,
+          image: imageUrl || (cropName.toLowerCase().includes('kiwi') ? '/produce/kiwi.jpg' : '/produce/kiwi.jpg'),
+          farmer: 'Direct Farm Harvest',
+          origin: village || deliveryLocation || 'Telangana Direct Hub',
+          harvestedTime: 'Fresh harvest',
+          deliveryTime: '15-20 Mins',
+          description: description || `Fresh ${cropName} harvested directly from farmer.`,
+          inStock: true
+        };
+        localStorage.setItem('rythu_custom_produce', JSON.stringify([newProduct, ...existing]));
+      } catch (e) {
+        console.warn('Could not cache custom produce:', e);
+      }
+
       navigate('/farmer/produce');
     } catch (err) {
       setError(err.response?.data?.detail || "Failed to add produce listing.");

@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { PRODUCE_CATEGORIES, FRESH_PRODUCTS } from '../services/produceCatalog';
+import api from '../services/api';
 import { 
   Search, 
   Clock, 
@@ -34,10 +35,65 @@ const CustomerStorePage = ({ onOpenAddressModal }) => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('popular');
+  const [backendProducts, setBackendProducts] = useState([]);
+
+  useEffect(() => {
+    // Fetch live produce listings from Neon DB
+    api.get('/buyer/produce?page_size=50')
+      .then(res => {
+        const items = res.data?.items || res.data || [];
+        const mapped = items.map(p => ({
+          id: `db-crop-${p.id}`,
+          name: p.crop_name,
+          category: (p.crop_name || '').toLowerCase().includes('kiwi') || (p.category_name || '').toLowerCase().includes('fruit') ? 'fruits' :
+                    (p.category_name || '').toLowerCase().includes('grain') ? 'grains' :
+                    (p.category_name || '').toLowerCase().includes('pulse') ? 'pulses' : 'vegetables',
+          unit: `${p.quantity || 1} ${p.unit || 'kg'} pack`,
+          price: Math.round(Number(p.expected_price_per_kg) || 40),
+          originalPrice: Math.round((Number(p.expected_price_per_kg) || 40) * 1.35),
+          discount: '25% OFF',
+          rating: 4.9,
+          ratingCount: 38,
+          image: p.images && p.images.length > 0 ? p.images[0].image_url : (p.image_urls && p.image_urls[0]) || ((p.crop_name || '').toLowerCase().includes('kiwi') ? '/produce/kiwi.jpg' : '/produce/kiwi.jpg'),
+          farmer: p.farmer_name || 'Direct Farm Producer',
+          origin: p.delivery_location || p.village || 'Telangana Direct Hub',
+          harvestedTime: 'Direct Farm Harvest',
+          deliveryTime: '15-20 Mins',
+          description: p.description || `${p.crop_name} fresh from farm harvest.`,
+          inStock: true
+        }));
+        setBackendProducts(mapped);
+      })
+      .catch(err => {
+        console.warn("Could not fetch backend produce:", err);
+      });
+  }, []);
+
+  // Also read any custom items saved in localStorage
+  const localProducts = useMemo(() => {
+    try {
+      const saved = localStorage.getItem('rythu_custom_produce');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  }, []);
+
+  // Combined Catalog: localStorage custom produce + backend DB listings + FRESH_PRODUCTS
+  const combinedCatalog = useMemo(() => {
+    const all = [...localProducts, ...backendProducts, ...FRESH_PRODUCTS];
+    const seen = new Set();
+    return all.filter(item => {
+      const key = (item.name || '').toLowerCase().trim();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [localProducts, backendProducts]);
 
   // Filter products by category & search query
   const filteredProducts = useMemo(() => {
-    return FRESH_PRODUCTS.filter((product) => {
+    return combinedCatalog.filter((product) => {
       const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
       const matchesSearch = 
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -50,7 +106,7 @@ const CustomerStorePage = ({ onOpenAddressModal }) => {
       if (sortBy === 'rating') return b.rating - a.rating;
       return b.ratingCount - a.ratingCount; // popular
     });
-  }, [selectedCategory, searchQuery, sortBy]);
+  }, [combinedCatalog, selectedCategory, searchQuery, sortBy]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 pb-28">
