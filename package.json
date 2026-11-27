@@ -1,0 +1,12 @@
+{
+  "name": "rythudirect",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "npm --prefix rythudirect/frontend run build",
+    "start": "npx --prefix rythudirect/frontend vite"
+  },
+  "dependencies": {
+    "@neon/config": "^1.14.8",
+    "@neon/env": "^2.1.11"
+  }
+}

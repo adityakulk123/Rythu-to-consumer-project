@@ -19,9 +19,9 @@ def seed_database(db: Session):
     import app.models
     Base.metadata.create_all(bind=engine)
 
-    # Check if categories already seeded
-    if db.query(CropCategory).first() is not None and db.query(User).filter(User.role == UserRole.ADMIN).first() is not None:
-        print("Database already contains categories and admin. Skipping seed.")
+    # Check if produce listings already seeded
+    if db.query(ProduceListing).first() is not None:
+        print("Database already contains produce listings. Skipping seed.")
         return
 
     print("Seeding RythuDirect database with comprehensive sample agricultural data...")
