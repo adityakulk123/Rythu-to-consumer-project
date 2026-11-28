@@ -52,12 +52,20 @@ export const AuthProvider = ({ children }) => {
     return await login(registerData.mobile_number, registerData.password);
   };
 
-  const logout = () => {
-    localStorage.removeItem('rythu_token');
-    localStorage.removeItem('rythu_user');
-    localStorage.removeItem('rythu_delivery_address');
-    setToken(null);
-    setUser(null);
+  const logout = async () => {
+    try {
+      if (token) {
+        await api.post('/auth/logout');
+      }
+    } catch (e) {
+      console.warn("Server logout notification skipped:", e);
+    } finally {
+      localStorage.removeItem('rythu_token');
+      localStorage.removeItem('rythu_user');
+      localStorage.removeItem('rythu_delivery_address');
+      setToken(null);
+      setUser(null);
+    }
   };
 
   const refreshUser = async () => {

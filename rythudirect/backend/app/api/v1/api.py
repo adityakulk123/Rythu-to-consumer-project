@@ -8,7 +8,8 @@ from app.api.v1.endpoints import (
     market_prices,
     admin,
     notifications,
-    disputes
+    disputes,
+    activity
 )
 
 api_router = APIRouter()
@@ -22,3 +23,4 @@ api_router.include_router(market_prices.router, prefix="/market-prices", tags=["
 api_router.include_router(admin.router, prefix="/admin", tags=["Admin"])
 api_router.include_router(notifications.router, prefix="/notifications", tags=["Notifications"])
 api_router.include_router(disputes.router, prefix="/disputes", tags=["Disputes"])
+api_router.include_router(activity.router, prefix="/activity", tags=["User Activity Tracking"])

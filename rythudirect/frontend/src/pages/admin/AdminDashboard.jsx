@@ -11,21 +11,52 @@ import {
   Layers, 
   FileText,
   UserX,
-  Search
+  Search,
+  Activity,
+  Eye,
+  MousePointer,
+  ShieldAlert,
+  Clock,
+  RefreshCw
 } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [metrics, setMetrics] = useState(null);
   const [users, setUsers] = useState([]);
   const [disputes, setDisputes] = useState([]);
-  const [activeTab, setActiveTab] = useState('overview'); // overview, users, disputes, verification
+  const [activeTab, setActiveTab] = useState('overview'); // overview, users, disputes, activity
   const [loading, setLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState('');
   const [disputeNotes, setDisputeNotes] = useState({});
+  const [activitySummary, setActivitySummary] = useState(null);
+  const [activityLogs, setActivityLogs] = useState([]);
+  const [activityLoading, setActivityLoading] = useState(false);
 
   useEffect(() => {
     loadAdminData();
   }, [roleFilter]);
+
+  useEffect(() => {
+    if (activeTab === 'activity') {
+      loadActivityData();
+    }
+  }, [activeTab]);
+
+  const loadActivityData = async () => {
+    setActivityLoading(true);
+    try {
+      const [sumRes, logsRes] = await Promise.all([
+        api.get('/activity/summary'),
+        api.get('/activity/logs?limit=40')
+      ]);
+      setActivitySummary(sumRes.data);
+      setActivityLogs(logsRes.data);
+    } catch (e) {
+      console.error("Failed to load activity logs:", e);
+    } finally {
+      setActivityLoading(false);
+    }
+  };
 
   const loadAdminData = async () => {
     setLoading(true);
@@ -94,7 +125,7 @@ const AdminDashboard = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          {['overview', 'users', 'disputes'].map((tab) => (
+          {['overview', 'users', 'disputes', 'activity'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -104,7 +135,7 @@ const AdminDashboard = () => {
                   : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
               }`}
             >
-              {tab}
+              {tab === 'activity' ? 'Activity & Security' : tab}
             </button>
           ))}
         </div>
@@ -364,6 +395,188 @@ const AdminDashboard = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* ACTIVITY & SECURITY TRACKING TAB */}
+      {activeTab === 'activity' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">User Activity & Security Auditing</h2>
+              <p className="text-xs text-gray-500">Live monitoring of user navigation, feature usage, and authentication security (Intra-platform only)</p>
+            </div>
+            <button
+              onClick={loadActivityData}
+              disabled={activityLoading}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-700 text-white hover:bg-emerald-800 disabled:opacity-50 transition-all"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${activityLoading ? 'animate-spin' : ''}`} />
+              Refresh Activity
+            </button>
+          </div>
+
+          {/* Activity Stat Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="bg-white p-4 rounded-2xl border border-gray-200">
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Total Events</span>
+              <span className="text-2xl font-black text-gray-900">{activitySummary?.total_events || 0}</span>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-200">
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Page Views</span>
+              <span className="text-2xl font-black text-blue-600">{activitySummary?.total_page_views || 0}</span>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-200">
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Feature Clicks</span>
+              <span className="text-2xl font-black text-purple-600">{activitySummary?.total_feature_clicks || 0}</span>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-200">
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Logins</span>
+              <span className="text-2xl font-black text-emerald-600">{activitySummary?.successful_logins || 0}</span>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-200">
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Failed Logins</span>
+              <span className={`text-2xl font-black ${(activitySummary?.failed_logins || 0) > 0 ? 'text-red-600' : 'text-gray-400'}`}>
+                {activitySummary?.failed_logins || 0}
+              </span>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-200">
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Active Users</span>
+              <span className="text-2xl font-black text-amber-600">{activitySummary?.unique_active_users || 0}</span>
+            </div>
+          </div>
+
+          {/* Navigation Trends & Failed Logins Breakdown */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Top Visited Pages & Features */}
+            <div className="bg-white p-5 rounded-3xl border border-gray-200 space-y-4">
+              <h3 className="text-sm font-black text-gray-900 flex items-center gap-2">
+                <Eye className="w-4 h-4 text-emerald-700" />
+                Frequently Visited Pages (Navigation Patterns)
+              </h3>
+              <div className="space-y-2">
+                {activitySummary?.top_pages?.length ? (
+                  activitySummary.top_pages.map((p, idx) => (
+                    <div key={idx} className="flex items-center justify-between text-xs p-2 rounded-xl bg-gray-50">
+                      <span className="font-mono text-gray-700 truncate max-w-[280px]">{p.name}</span>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">
+                        {p.count} views
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-gray-400 py-3 text-center">No page views recorded yet</p>
+                )}
+              </div>
+            </div>
+
+            {/* Security Alerts: Failed Logins */}
+            <div className="bg-white p-5 rounded-3xl border border-gray-200 space-y-4">
+              <h3 className="text-sm font-black text-gray-900 flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4 text-red-600" />
+                Security & Failed Login Alerts
+              </h3>
+              <div className="space-y-2 max-h-[220px] overflow-y-auto">
+                {activitySummary?.recent_suspicious_or_failed_attempts?.length ? (
+                  activitySummary.recent_suspicious_or_failed_attempts.map((alert) => (
+                    <div key={alert.id} className="p-2.5 rounded-xl bg-red-50 border border-red-100 text-xs flex items-start justify-between">
+                      <div>
+                        <span className="font-bold text-red-800 block">Target: {alert.user_identifier || 'Unknown'}</span>
+                        <span className="text-[11px] text-red-600">{alert.details || 'Failed credential verification'}</span>
+                        <div className="text-[10px] text-gray-500 mt-1 flex items-center gap-2">
+                          <span>IP: {alert.ip_address || 'unknown'}</span>
+                          <span>•</span>
+                          <span>{new Date(alert.created_at).toLocaleTimeString()}</span>
+                        </div>
+                      </div>
+                      <span className="px-2 py-0.5 bg-red-200 text-red-900 text-[10px] font-black rounded-md uppercase">
+                        {alert.activity_type}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-6 text-gray-400 text-xs">
+                    <CheckCircle className="w-8 h-8 text-emerald-500 mx-auto mb-1 opacity-70" />
+                    No suspicious activities or failed login attempts detected. System secure.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Activity Log Feed */}
+          <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-xs">
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h3 className="font-bold text-sm text-gray-800 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-emerald-600" />
+                Real-Time User Activity Stream
+              </h3>
+              <span className="text-xs text-gray-500">Last 40 events</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-gray-50 text-gray-500 uppercase tracking-wider text-[10px]">
+                  <tr>
+                    <th className="px-4 py-3">Timestamp</th>
+                    <th className="px-4 py-3">Type</th>
+                    <th className="px-4 py-3">User / Identifier</th>
+                    <th className="px-4 py-3">Page / Feature</th>
+                    <th className="px-4 py-3">Details</th>
+                    <th className="px-4 py-3">Client IP</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {activityLogs.map((log) => {
+                    let badgeColor = 'bg-gray-100 text-gray-700';
+                    if (log.activity_type === 'PAGE_VIEW') badgeColor = 'bg-blue-100 text-blue-800';
+                    else if (log.activity_type === 'LOGIN_SUCCESS') badgeColor = 'bg-emerald-100 text-emerald-800';
+                    else if (log.activity_type === 'LOGIN_FAILED') badgeColor = 'bg-red-100 text-red-800';
+                    else if (log.activity_type === 'LOGOUT') badgeColor = 'bg-amber-100 text-amber-800';
+                    else if (log.activity_type === 'REGISTER') badgeColor = 'bg-purple-100 text-purple-800';
+                    else if (log.activity_type === 'FEATURE_INTERACTION') badgeColor = 'bg-teal-100 text-teal-800';
+
+                    return (
+                      <tr key={log.id} className="hover:bg-gray-50/80 transition-colors">
+                        <td className="px-4 py-2.5 text-gray-500 font-mono text-[11px]">
+                          {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeColor}`}>
+                            {log.activity_type}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2.5 text-gray-800 font-medium">
+                          {log.user_identifier || 'Guest'}
+                          {log.user_role && (
+                            <span className="text-[10px] text-gray-400 block font-normal">Role: {log.user_role}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className="font-mono text-gray-700 text-[11px] block">{log.page_path || '-'}</span>
+                          {log.feature_name && (
+                            <span className="text-[10px] font-bold text-teal-700">{log.feature_name}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-2.5 text-gray-500 max-w-[220px] truncate" title={log.details || ''}>
+                          {log.details || '-'}
+                        </td>
+                        <td className="px-4 py-2.5 text-gray-400 font-mono text-[10px]">
+                          {log.ip_address || '-'}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {activityLogs.length === 0 && (
+                    <tr>
+                      <td colSpan="6" className="text-center py-8 text-gray-400">
+                        No activity records found yet.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

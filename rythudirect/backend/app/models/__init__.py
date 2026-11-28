@@ -9,6 +9,7 @@ from app.models.dispute import Dispute
 from app.models.market import MarketPrice
 from app.models.notification import Notification
 from app.models.audit import AuditLog
+from app.models.activity import UserActivityLog
 
 __all__ = [
     "Base",
@@ -31,4 +32,5 @@ __all__ = [
     "MarketPrice",
     "Notification",
     "AuditLog",
+    "UserActivityLog",
 ]

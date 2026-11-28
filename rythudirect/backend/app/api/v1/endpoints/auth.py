@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import datetime
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import get_current_user
@@ -15,9 +16,39 @@ def register(reg_data: UserRegister, db: Session = Depends(get_db)):
     return user
 
 @router.post("/login", response_model=TokenResponse)
-def login(login_data: LoginRequest, db: Session = Depends(get_db)):
+def login(login_data: LoginRequest, request: Request, db: Session = Depends(get_db)):
     """Logs in with mobile number or email and returns a signed JWT."""
-    return authenticate_user(db, login_data)
+    client_ip = request.client.host if request.client else "unknown"
+    user_agent = request.headers.get("user-agent", "")
+    return authenticate_user(db, login_data, ip_address=client_ip, user_agent=user_agent)
+
+@router.post("/logout", status_code=status.HTTP_200_OK)
+def logout(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Logs out the user and records logout activity with timestamp."""
+    client_ip = request.client.host if request.client else "unknown"
+    user_agent = request.headers.get("user-agent", "")
+    from app.services.activity_service import log_activity
+    log_activity(
+        db=db,
+        activity_type="LOGOUT",
+        user_id=current_user.id,
+        user_identifier=current_user.mobile_number or current_user.email,
+        user_role=current_user.role,
+        page_path="/logout",
+        page_title="User Logout",
+        feature_name="SignOut",
+        details="User logged out successfully",
+        ip_address=client_ip,
+        user_agent=user_agent
+    )
+    return {
+        "message": "User logged out successfully",
+        "timestamp": datetime.datetime.utcnow().isoformat()
+    }
 
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):

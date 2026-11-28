@@ -22,7 +22,13 @@ def execute_payment(data: PaymentProcessRequest, current_buyer: User = Depends(g
 
 @router.get("/{order_id}", response_model=Optional[PaymentTransactionResponse])
 def get_payment_details(order_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Get payment tracking details for an order."""
+    """Get payment tracking details for an order with strict authorization check."""
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        return None
+    if current_user.role != "ADMIN" and current_user.id != order.farmer_id and current_user.id != order.buyer_id:
+        from fastapi import HTTPException, status
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to view payment details for this order.")
     payment = db.query(PaymentTransaction).filter(PaymentTransaction.order_id == order_id).first()
     if not payment:
         return None

@@ -93,20 +93,60 @@ def register_user(db: Session, reg_data: UserRegister) -> User:
             db.commit()
 
     db.refresh(user)
+
+    from app.services.activity_service import log_activity
+    log_activity(
+        db=db,
+        activity_type="REGISTER",
+        user_id=user.id,
+        user_identifier=user.mobile_number,
+        user_role=user.role,
+        page_path="/register",
+        page_title="User Registration",
+        feature_name="RegisterAccount",
+        details=f"New user registered with role {user.role}"
+    )
+
     return user
 
-def authenticate_user(db: Session, login_data: LoginRequest) -> dict:
+def authenticate_user(db: Session, login_data: LoginRequest, ip_address: Optional[str] = None, user_agent: Optional[str] = None) -> dict:
+    from app.services.activity_service import log_activity
+
     query = db.query(User).filter(
         (User.mobile_number == login_data.mobile_or_email) | (User.email == login_data.mobile_or_email)
     )
     user = query.first()
     if not user or not verify_password(login_data.password, user.hashed_password):
+        log_activity(
+            db=db,
+            activity_type="LOGIN_FAILED",
+            user_identifier=login_data.mobile_or_email,
+            page_path="/login",
+            page_title="User Login",
+            feature_name="Authenticate",
+            details="Invalid mobile/email or password entered",
+            ip_address=ip_address,
+            user_agent=user_agent
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid mobile/email or password."
         )
 
     if not user.is_active:
+        log_activity(
+            db=db,
+            activity_type="LOGIN_FAILED",
+            user_id=user.id,
+            user_identifier=user.mobile_number or user.email,
+            user_role=user.role,
+            page_path="/login",
+            page_title="User Login",
+            feature_name="Authenticate",
+            details="Attempted login on deactivated account",
+            ip_address=ip_address,
+            user_agent=user_agent
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="This account has been deactivated. Please contact support."
@@ -117,6 +157,21 @@ def authenticate_user(db: Session, login_data: LoginRequest) -> dict:
         is_verified = user.buyer_profile.is_verified
 
     access_token = create_access_token(data={"sub": str(user.id), "role": user.role})
+
+    log_activity(
+        db=db,
+        activity_type="LOGIN_SUCCESS",
+        user_id=user.id,
+        user_identifier=user.mobile_number or user.email,
+        user_role=user.role,
+        page_path="/login",
+        page_title="User Login",
+        feature_name="Authenticate",
+        details="Successful login",
+        ip_address=ip_address,
+        user_agent=user_agent
+    )
+
     return {
         "access_token": access_token,
         "token_type": "bearer",

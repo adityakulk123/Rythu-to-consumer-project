@@ -8,6 +8,7 @@ import { CartProvider } from './context/CartContext';
 import MainLayout from './layouts/MainLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import ProtectedRoute from './components/ProtectedRoute';
+import ActivityTracker from './components/ActivityTracker';
 
 // Customer Quick-Commerce Pages (Blinkit / Instamart style)
 import CustomerStorePage from './pages/CustomerStorePage';
@@ -55,6 +56,7 @@ function App() {
       <AuthProvider>
         <CartProvider>
           <BrowserRouter>
+            <ActivityTracker />
             <Routes>
 
               {/* Public & Customer Routes */}
