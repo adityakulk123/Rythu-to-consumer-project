@@ -1,205 +1,276 @@
-# RythuDirect – Smart Farmer-to-Buyer Agricultural Marketplace
+# RythuDirect (రైతు డైరెక్ట్)
+### Smart Farmer-to-Buyer Agricultural Marketplace & Fintech Platform
 
-> **Tagline:** Fair Prices. Direct Buyers. Better Farming.
+> **Fair Prices. Direct Buyers. Better Farming.**  
+> *రైతుకు న్యాయమైన ధర &bull; దళారులు లేని నేరుగా అమ్మకాలు &bull; ఆధునిక వ్యవసాయ వేదిక*
 
-**RythuDirect** is a modern, responsive, full-stack B2B and B2C agricultural technology platform engineered to connect smallholder and commercial farmers directly with verified buyers—including wholesalers, supermarkets, food processing enterprises, restaurants, and institutional buyers—bypassing predatory middlemen.
-
----
-
-## 🌾 Key Real-World Agricultural Problems Solved
-
-1. **Low Farmer Bargaining Power:** Farmers can set asking prices and specify a **confidential minimum acceptable price** that buyers cannot see, safeguarding bargaining power.
-2. **Heavy Middleman Intermediation:** Direct communication and multi-quotation management directly between farmers and verified buyers.
-3. **Unfair Quality & Tare Deductions:** Digital **Weighment & Quality Slip** logs Gross Weight, Packaging Tare Weight, and Certified Scale Slips ($Net\ Weight = Gross - Tare$, $Final\ Amount = Accepted\ Net \times Agreed\ Price$). Mutually confirmed by both parties and locked against tampering.
-4. **Delayed Payments:** Integrated **Escrow Milestone System** (20% Advance holding, Full payout on delivery) with APMC and GST compliant digital receipts.
-5. **Lack of Transparent Market Information:** Cross-mandi benchmark feeds showing Min, Max, and Modal prices across APMC mandis (Bowenpally, Warangal, Guntur, Nizamabad, Suryapet, Kurnool) from official sources.
-6. **Multi-Buyer Splitting & Inventory Safety:** Atomic database row-locking prevents overselling when multiple buyers submit quotations for the same harvest lot.
+[![Python](https://img.shields.io/badge/Python-3.14%20%7C%203.15-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-19.0-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Database-Supabase_PostgreSQL_17-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![License](https://img.shields.io/badge/Platform-Production_Ready-10B981)](#)
 
 ---
 
-## 🛠️ Technology Stack
-
-### **Frontend**
-- **React.js 19** with **Vite**
-- **Tailwind CSS v4** (Agricultural fintech palette: Forest Green `#1B4332`, Leaf Green `#2D6A4F`, Soft Yellow `#E9C46A`, Crisp Off-White `#F8F9FA`)
-- **React Router DOM v7**
-- **Axios** (with JWT Bearer interceptors)
-- **Lucide React Icons**
-- **Bilingual i18n:** Full **English** and **Telugu (తెలుగు)** support with an instant switcher.
-
-### **Backend**
-- **Python 3.14 / 3.15** with **FastAPI**
-- **Uvicorn** ASGI server
-- **SQLAlchemy 2.0 ORM** & **Pydantic v2**
-- **Alembic** database migrations
-- **PostgreSQL / Neon & SQLite** dual-compatible architecture
-- **JWT Authentication & Bcrypt Password Hashing**
-- **Role-Based Access Control (RBAC)**: `FARMER`, `BUYER`, `ADMIN` (Public registration strictly bars unauthorized admin creation)
+**RythuDirect** is a modern full-stack agricultural fintech marketplace connecting Indian smallholder and commercial farmers directly with verified institutional and bulk commercial buyers (wholesalers, supermarkets, food processors, hotels, restaurants, and retail chains)—permanently bypassing exploitative commission agents (*dalalis*) and middlemen.
 
 ---
 
-## 📁 Repository Structure
+## 🏛️ System Architecture
 
+![RythuDirect System Architecture](docs/images/architecture_diagram.png)
+
+### 3-Tier Layered Overview
+
+| Architecture Tier | Technologies & Components | Core Responsibilities |
+|---|---|---|
+| **Presentation Tier (Client SPA)** | React 19, Vite, Tailwind CSS v4, Lucide Icons, Axios, Context API | Mobile-responsive SPA, instant **English & Telugu (తెలుగు)** bilingual switcher, role-based dashboards (Farmer, Buyer, Admin), JWT Bearer client interceptors. |
+| **API Gateway & Routing** | Cloudflare Tunnel / SSL Reverse Proxy, CORS Middleware | Secure ingress, origin protection, public demo tunneling, and API route dispatching. |
+| **Application Services (Backend)** | Python FastAPI, Uvicorn ASGI, Pydantic v2, PyJWT, Bcrypt, OAuth2 | Asynchronous REST endpoints (`/auth`, `/farmer`, `/buyer`, `/orders`, `/weighments`, `/payments`, `/market-prices`, `/admin`, `/activity`), atomic stock locking, Rule 13 floor price secrecy, digital scale weighment math. |
+| **Persistence Tier (Database)** | **Supabase Cloud PostgreSQL 17.12**, Session Pooler (port `5432`), SQLAlchemy 2.0 ORM, `psycopg` (v3) | 19 normalized relational tables, ACID transactional safety, row-level locking, sequence auto-increments, and foreign key integrity. |
+
+---
+
+## 🗄️ Relational Entity-Relationship Diagram (ERD)
+
+![RythuDirect Entity Relationship Diagram](docs/images/er_diagram.png)
+
+### 19 Normalized Relational Tables by Domain
+
+```mermaid
+erDiagram
+    users ||--o| farmer_profiles : "has"
+    users ||--o| buyer_profiles : "has"
+    buyer_profiles ||--o| buyer_verifications : "submits"
+    crop_categories ||--o{ produce_listings : "categorizes"
+    farmer_profiles ||--o{ produce_listings : "lists"
+    produce_listings ||--o{ produce_images : "contains"
+    produce_listings ||--o{ buyer_offers : "receives"
+    buyer_profiles ||--o{ buyer_offers : "places"
+    buyer_offers ||--o{ offer_negotiations : "threads"
+    buyer_offers ||--|| orders : "converts_to"
+    farmer_profiles ||--o{ orders : "fulfills"
+    buyer_profiles ||--o{ orders : "purchases"
+    orders ||--o{ order_items : "contains"
+    produce_listings ||--o{ order_items : "itemizes"
+    orders ||--|| weighment_records : "weighs"
+    weighment_records ||--|| quality_assessments : "grades"
+    orders ||--o{ payment_transactions : "settles"
+    orders ||--o{ disputes : "flags"
+    users ||--o{ notifications : "receives"
+    users ||--o{ audit_logs : "audits"
+    users ||--o{ user_activity_logs : "tracks"
 ```
+
+1. **Identity & Access:** `users`, `farmer_profiles`, `buyer_profiles`, `buyer_verifications`
+2. **Produce Catalog:** `crop_categories`, `produce_listings`, `produce_images`
+3. **Bidding & Negotiation:** `buyer_offers`, `offer_negotiations`
+4. **Orders & Inventory:** `orders`, `order_items`
+5. **Certified Weighment:** `weighment_records`, `quality_assessments`
+6. **Financials & Disputes:** `payment_transactions`, `disputes`
+7. **Intelligence & Telemetry:** `market_prices`, `notifications`, `audit_logs`, `user_activity_logs`
+
+---
+
+## 🌟 Real-World Agricultural Problems Solved
+
+### 1. Confidential Floor Pricing (Rule 13 Invariant)
+Farmers set a public **Asking Price** and a secret **Minimum Acceptable Price**. The API strictly filters serialization:
+- Public and buyer endpoints use `ProducePublicResponse`, which permanently redacts `min_acceptable_price`.
+- Only the farmer who owns the listing can view their private reserve price via `ProduceFarmerResponse`.
+
+### 2. Multi-Buyer Bidding & Atomic Inventory Locking (Section 12)
+- Multi-buyer bidding is supported for partial quantities of a harvest lot.
+- Upon offer acceptance, the system executes an atomic transaction:
+  $$\text{Remaining Quantity} = \text{Total Quantity} - \text{Accepted Quantity}$$
+- If stock hits zero, status transitions to `SOLD_OUT`; otherwise `PARTIALLY_SOLD`.
+- Over-allocation attempts exceeding remaining inventory are automatically rejected with HTTP 400.
+
+### 3. Certified Digital Scale Weighment (Section 14)
+Eliminates arbitrary mandi deductions and unverified moisture cuts with certified scale slips:
+$$\text{Net Weight} = \text{Gross Weight} - \text{Packaging Tare Weight}$$
+$$\text{Final Settlement Amount} = \text{Accepted Net Quantity} \times \text{Agreed Price}$$
+- Dual-party mutual confirmation: both Farmer and Buyer must digitally approve the certified weighment slip before escrow disbursement.
+
+### 4. 2-Phase Escrow Settlement (Section 15)
+- **Phase 1 (Advance Milestone):** 20% advance payment locked in escrow upon offer agreement.
+- **Phase 2 (Final Settlement):** 80% balance released upon mutual confirmation of digital scale slips.
+- Generates downloadable and printable APMC/GST-compliant transaction receipts.
+
+### 5. APMC Mandi Bhav Market Intelligence (Section 16)
+- Daily live modal, minimum, and maximum price feeds across Telangana and Andhra Pradesh mandis (Bowenpally, Guntur, Warangal, Nizamabad, Suryapet, Kurnool).
+- Features an interactive cross-mandi price spread analysis tool.
+
+### 6. Full Bilingual Accessibility (Section 8)
+- Instant one-click toggle between **English** and **Telugu (తెలుగు)** with zero page reloads.
+
+---
+
+## ⚡ Active Database: Supabase Cloud PostgreSQL 17
+
+The application's active database is hosted on **Supabase Cloud PostgreSQL 17.12**:
+- **Host Region:** Tokyo (`aws-1-ap-northeast-1`)
+- **Connection Mode:** IPv4 Session Connection Pooler (port `5432`)
+- **Driver:** `postgresql+psycopg` (modern psycopg v3)
+- **Status:** 100% migrated from legacy Neon with zero remaining Neon dependencies.
+
+```env
+DATABASE_URL="postgresql+psycopg://postgres.vdtfhjorxudmwwqotkqw:[PASSWORD]@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres?sslmode=require"
+SUPABASE_URL="https://vdtfhjorxudmwwqotkqw.supabase.co"
+SUPABASE_PROJECT_ID="vdtfhjorxudmwwqotkqw"
+```
+
+---
+
+## 🚀 Quick Start Guide
+
+### Prerequisites
+- **Python** 3.10+ (tested on Python 3.14 & 3.15)
+- **Node.js** 18+ (tested on Node v22.13.1)
+- **npm** 9+
+
+---
+
+### 1. Automated One-Click Start (Windows)
+```powershell
+cd rythudirect
+.\start_all.bat
+```
+
+---
+
+### 2. Manual Backend Startup
+
+```powershell
+# Navigate to backend directory
+cd rythudirect\backend
+
+# Activate virtual environment
+.\venv\Scripts\activate
+
+# Install dependencies (if not already installed)
+pip install -r requirements.txt
+
+# Start FastAPI ASGI server with auto-reload
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+- **Backend API Root:** `http://localhost:8000`
+- **Swagger Interactive API Docs:** `http://localhost:8000/api/v1/docs`
+- **ReDoc Interactive Documentation:** `http://localhost:8000/api/v1/redoc`
+
+---
+
+### 3. Manual Frontend Startup
+
+```powershell
+# In a new terminal, navigate to frontend directory
+cd rythudirect\frontend
+
+# Install dependencies
+npm install
+
+# Start Vite dev server
+npx vite
+```
+- **Frontend Web Application:** `http://localhost:5173`
+
+---
+
+## 🔑 Pre-Configured Demo Test Accounts
+
+The Supabase database comes pre-populated with realistic test accounts across all roles:
+
+| Role | Mobile / Identifier | Password | Name & Account Details |
+|---|---|---|---|
+| 👨‍🌾 **Farmer** | `9848011111` | `farmer123` | Mallaiah Yadav (Jangaon &bull; Paddy, Tomato & Kiwi) |
+| 👨‍🌾 **Farmer** | `9848022222` | `farmer123` | Rami Reddy (Guntur &bull; Teja Chilli & Sugarcane) |
+| 👨‍🌾 **Farmer** | `9848033333` | `farmer123` | Kavitha Bai (Nizamabad &bull; Turmeric & Soyabean) |
+| 🏢 **Buyer** | `9700011111` | `buyer123` | Vikram Sethi (Sethi Agro Wholesalers &bull; APMC Bowenpally) |
+| 🏢 **Buyer** | `9700022222` | `buyer123` | Suresh Chandra (FreshRoots Supermarket Chain) |
+| 🛡️ **Admin** | `9999999999` | `admin123` | RythuDirect Platform Governance Administrator |
+
+*Tip: On the Login screen, click any demo role badge ("Farmer", "Buyer", "Admin") to instantly populate credentials.*
+
+---
+
+## 🧪 Automated Testing & Verification
+
+RythuDirect contains comprehensive verification suites validating all core business rules:
+
+```powershell
+# Run the automated pytest test suite
+cd rythudirect\backend
+.\venv\Scripts\python.exe -m pytest tests/test_marketplace.py -v
+
+# Run the live Supabase end-to-end verification script
+.\venv\Scripts\python.exe verify_api.py
+```
+
+### Verified Passing Test Cases:
+- [x] **API Health Status (`/health`):** 200 OK healthy response.
+- [x] **Role Security & RBAC:** Blocks unauthorized admin creation via public registration.
+- [x] **Rule 13 Privacy Invariant:** Strict omission of `min_acceptable_price` in public listings.
+- [x] **Multi-Buyer Partial Bidding:** Counter-offers, negotiations, and buyer approvals.
+- [x] **Atomic Inventory Lock:** Prevents overselling when multiple buyers purchase from one harvest lot.
+- [x] **Certified Weighment Formula:** $Net = Gross - Tare$ calculation verified with scale slip confirmation.
+- [x] **Escrow Milestone Settlements:** Advance locking and final payout receipt generation.
+- [x] **Administrative Telemetry:** Live activity log write (`user_activity_logs`) and summary aggregation on Supabase.
+
+---
+
+## 📁 Repository Directory Structure
+
+```text
 rythudirect/
+├── backend/
+│   ├── app/
+│   │   ├── api/v1/endpoints/   # Modular API routers (auth, farmer, buyer, orders, weighments, payments, mandi, admin)
+│   │   ├── core/               # Database engine, session maker, JWT & security configs
+│   │   ├── models/             # 19 SQLAlchemy 2.0 normalized models
+│   │   ├── schemas/            # Pydantic v2 serialization and validation schemas
+│   │   ├── services/           # Domain business logic (negotiation, inventory lock, weighment, escrow)
+│   │   ├── utils/              # Seeder with authentic Telangana & AP agricultural data
+│   │   └── main.py             # FastAPI entrypoint, CORS, exception handlers
+│   ├── alembic/                # Database migrations
+│   ├── tests/                  # Automated pytest test suites
+│   ├── requirements.txt
+│   └── .env                    # Supabase pooler credentials (Git-ignored)
 ├── frontend/
 │   ├── src/
-│   │   ├── components/       # Navbar, Footer, LanguageSwitcher, Modals (Weighment, MakeOffer, Payment, Dispute)
-│   │   ├── context/          # AuthContext, LanguageContext
-│   │   ├── layouts/          # MainLayout, DashboardLayout
-│   │   ├── pages/            # LandingPage, ExploreProducePage, ProduceDetailPage, MarketPricesPage, Login, Register
-│   │   │   ├── farmer/       # FarmerDashboard, AddProducePage, FarmerProduceList, FarmerOffersPage, FarmerOrdersPage, FarmerPaymentsPage
-│   │   │   ├── buyer/        # BuyerDashboard, BuyerOffersPage, BuyerOrdersPage
-│   │   │   └── admin/        # AdminDashboard (Governance, Dispute Arbitration, Verification)
-│   │   ├── services/         # api.js (Axios instance with JWT interceptors)
-│   │   ├── translations/     # en.js, te.js (Telugu)
-│   │   ├── App.jsx
+│   │   ├── components/         # Navbar, Footer, LanguageSwitcher, Modals, ScaleSlips
+│   │   ├── context/            # AuthContext, LanguageContext
+│   │   ├── pages/              # LandingPage, ExploreProducePage, MarketPricesPage, Login, Register
+│   │   │   ├── farmer/         # FarmerDashboard, AddProduce, FarmerOffers, Orders, Payments
+│   │   │   ├── buyer/          # BuyerDashboard, BuyerOffers, BuyerOrders, ScaleWeighment
+│   │   │   └── admin/          # AdminDashboard, KYB Verification, Disputes, ActivityLogs
+│   │   ├── services/           # Axios client with JWT interceptors
+│   │   ├── translations/       # English (en.js) and Telugu (te.js) dictionaries
+│   │   ├── App.jsx             # Protected routing
 │   │   └── main.jsx
 │   ├── package.json
 │   └── vite.config.js
-│
-├── backend/
-│   ├── app/
-│   │   ├── api/v1/           # Modular endpoints: auth, farmer, buyer, orders, payments, market_prices, admin, notifications, disputes
-│   │   ├── core/             # config.py, database.py, security.py (bcrypt & JWT)
-│   │   ├── models/           # 18 normalized SQLAlchemy models
-│   │   ├── schemas/          # Pydantic v2 request/response schemas
-│   │   ├── services/         # Core business logic: atomic negotiation, inventory lock, weighment math, escrow
-│   │   ├── utils/            # seed_data.py (5 farmers, 5 buyers, 15 produce listings, 10 offers, orders, mandi prices)
-│   │   └── main.py           # FastAPI entrypoint with CORS & auto-seed
-│   ├── alembic/              # Database migration versions
-│   ├── alembic.ini
-│   ├── requirements.txt
-│   ├── .env.example
-│   └── tests/                # Automated pytest suite
+├── docs/
+│   ├── ARCHITECTURE.md         # Full architectural specification
+│   └── images/
+│       ├── architecture_diagram.png # High-res System Architecture Diagram
+│       └── er_diagram.png           # High-res Entity-Relationship Diagram (ERD)
+├── run_backend.bat             # 1-Click Backend Launcher
+├── run_frontend.bat            # 1-Click Frontend Launcher
+├── start_all.bat               # 1-Click Unified Full-Stack Launcher
 └── README.md
 ```
 
 ---
 
-## 🚀 Quickstart & Setup Instructions
+## 🛡️ Trust, Governance & Fair Trade Principles
 
-### 1. Prerequisites
-- **Node.js** v18+ and **npm**
-- **Python** 3.10+ (or Python 3.14/3.15)
-
----
-
-### 2. Backend Setup
-
-```bash
-cd rythudirect/backend
-
-# 1. Create and activate virtual environment
-python -m venv venv
-# On Windows:
-.\venv\Scripts\activate
-# On Linux/macOS:
-source venv/bin/activate
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Environment configuration
-cp .env.example .env
-
-# 4. Run database migrations (or auto-created on startup)
-alembic upgrade head
-
-# 5. Start the FastAPI backend
-uvicorn app.main:app --reload --port 8000
-```
-The backend API is now running at `http://localhost:8000`.
-- Interactive Swagger API Documentation: `http://localhost:8000/api/v1/docs`
-- Alternative ReDoc Documentation: `http://localhost:8000/api/v1/redoc`
+- **No Middlemen:** Direct transactions between certified farmers and verified buyers.
+- **Strict KYB Verification:** Commercial buyers must upload GST / Trade licenses verified by platform admins.
+- **Audit Trails:** Every bid, offer, order status transition, and weighment modification is recorded immutably in `audit_logs`.
+- **Fair Scale Protection:** Farmers are protected from arbitrary deductions through certified scale slips with packaging tare subtraction.
 
 ---
 
-### 3. Frontend Setup
-
-```bash
-cd rythudirect/frontend
-
-# 1. Install packages
-npm install
-
-# 2. Start Vite development server
-npm run dev
-```
-The React frontend is now accessible at `http://localhost:5173`.
-
----
-
-## 🔑 Pre-Configured Test Credentials
-
-For quick evaluation, the database comes pre-seeded with verified test accounts across all roles:
-
-| Role | Mobile / Identifier | Password | Description |
-|---|---|---|---|
-| **Farmer** | `9848011111` | `farmer123` | Mallaiah Yadav (Jangaon, Paddy & Tomato Farmer) |
-| **Farmer** | `9848022222` | `farmer123` | Rami Reddy (Guntur, Teja Chilli & Cotton) |
-| **Buyer** | `9700011111` | `buyer123` | Vikram Sethi (Sethi Agro Wholesalers, Bowenpally APMC) |
-| **Buyer** | `9700022222` | `buyer123` | Suresh Chandra (FreshRoots Supermarket Chain) |
-| **Admin** | `9999999999` | `admin123` | Platform Governance Administrator |
-
-*Note: In the Login screen, click any of the one-click demo role buttons ("Farmer", "Buyer", "Admin") to instantly pre-fill credentials.*
-
----
-
-## 🧪 Running Automated Backend Tests
-
-```bash
-cd rythudirect/backend
-.\venv\Scripts\python -m pytest -v tests/test_marketplace.py
-```
-
-### Verified Test Cases:
-- `test_health_check`: Verifies system uptime and API v1 status.
-- `test_prevent_admin_public_registration`: Asserts ordinary users cannot register as Admin via public endpoints.
-- `test_farmer_and_buyer_auth_flow`:
-  - Registers farmer and buyer.
-  - Generates produce listing with asking price and private reserve minimum price.
-  - Verifies buyer browsing strips/masks private minimum reserve.
-  - Submits purchase offer.
-  - Farmer accepts offer: verifies atomic stock reduction (`1000kg - 400kg = 600kg remaining`) and status transition to `PARTIALLY_SOLD`.
-  - Prevents over-selling: rejects subsequent offers exceeding remaining stock.
-  - Verifies certified weighment math ($Net = Gross - Tare$, $Final = Accepted \times Price$).
-  - Mutual confirmation locking.
-  - Escrow payment status update and receipt issuance.
-  - Dispute reporting.
-
----
-
-## ⚖️ Database Schema (18 Normalized Tables)
-
-1. `users`
-2. `farmer_profiles`
-3. `buyer_profiles`
-4. `buyer_verifications`
-5. `crop_categories`
-6. `produce_listings`
-7. `produce_images`
-8. `buyer_offers`
-9. `offer_negotiations`
-10. `orders`
-11. `order_items`
-12. `weighment_records`
-13. `quality_assessments`
-14. `payment_transactions`
-15. `notifications`
-16. `disputes`
-17. `market_prices`
-18. `audit_logs`
-
----
-
-## 🌐 Production & Neon PostgreSQL Deployment
-
-To deploy with **Neon PostgreSQL**:
-1. Create a project in [Neon Console](https://neon.tech).
-2. Set `DATABASE_URL` in `rythudirect/backend/.env`:
-   ```env
-   DATABASE_URL="postgresql://<user>:<password>@<endpoint-pooler>.neon.tech/rythudirect?sslmode=require"
-   ```
-3. Run `alembic upgrade head`.
-4. Deploy FastAPI with Uvicorn or Docker container, and deploy React build (`npm run build`) to Vercel, Netlify, or Cloudflare Pages.
+### 👨‍💻 Developed for Agricultural Innovation & Direct Trade
+*Empowering farmers with fair prices, transparent markets, and zero commission intermediaries.*

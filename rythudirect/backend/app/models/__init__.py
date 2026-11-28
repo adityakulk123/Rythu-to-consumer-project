@@ -10,6 +10,7 @@ from app.models.market import MarketPrice
 from app.models.notification import Notification
 from app.models.audit import AuditLog
 from app.models.activity import UserActivityLog
+from app.models.metric import Metric
 
 __all__ = [
     "Base",
@@ -33,4 +34,5 @@ __all__ = [
     "Notification",
     "AuditLog",
     "UserActivityLog",
+    "Metric",
 ]

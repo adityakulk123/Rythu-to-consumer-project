@@ -34,6 +34,7 @@ from app.core.config import settings
 from app.core.database import engine, Base, SessionLocal
 from app.api.v1.api import api_router
 from app.utils.seed_data import seed_database
+from app.services.metrics_service import start_metrics_scheduler, stop_metrics_scheduler
 import app.models # ensure all models are registered
 
 @asynccontextmanager
@@ -46,7 +47,13 @@ async def lifespan(app: FastAPI):
         seed_database(db)
     finally:
         db.close()
-    yield
+    
+    # Start automated 3-hour server metrics collection scheduler
+    await start_metrics_scheduler()
+    try:
+        yield
+    finally:
+        await stop_metrics_scheduler()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

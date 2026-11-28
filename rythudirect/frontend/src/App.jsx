@@ -38,6 +38,7 @@ import BuyerOrdersPage from './pages/buyer/BuyerOrdersPage';
 
 // Admin Protected Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminMetricsPage from './pages/admin/AdminMetricsPage';
 
 // Helper wrappers to pass modal context
 const CustomerStoreWrapper = () => {
@@ -117,6 +118,7 @@ function App() {
                 }
               >
                 <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="metrics" element={<AdminMetricsPage />} />
               </Route>
 
               {/* Catch-all route */}

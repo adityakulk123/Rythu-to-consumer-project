@@ -42,26 +42,49 @@ const CustomerStorePage = ({ onOpenAddressModal }) => {
     api.get('/buyer/produce?page_size=50')
       .then(res => {
         const items = res.data?.items || res.data || [];
-        const mapped = items.map(p => ({
-          id: `db-crop-${p.id}`,
-          name: p.crop_name,
-          category: (p.crop_name || '').toLowerCase().includes('kiwi') || (p.category_name || '').toLowerCase().includes('fruit') ? 'fruits' :
-                    (p.category_name || '').toLowerCase().includes('grain') ? 'grains' :
-                    (p.category_name || '').toLowerCase().includes('pulse') ? 'pulses' : 'vegetables',
-          unit: `${p.quantity || 1} ${p.unit || 'kg'} pack`,
-          price: Math.round(Number(p.expected_price_per_kg) || 40),
-          originalPrice: Math.round((Number(p.expected_price_per_kg) || 40) * 1.35),
-          discount: '25% OFF',
-          rating: 4.9,
-          ratingCount: 38,
-          image: p.images && p.images.length > 0 ? p.images[0].image_url : (p.image_urls && p.image_urls[0]) || ((p.crop_name || '').toLowerCase().includes('kiwi') ? '/produce/kiwi.jpg' : '/produce/kiwi.jpg'),
-          farmer: p.farmer_name || 'Direct Farm Producer',
-          origin: p.delivery_location || p.village || 'Telangana Direct Hub',
-          harvestedTime: 'Direct Farm Harvest',
-          deliveryTime: '15-20 Mins',
-          description: p.description || `${p.crop_name} fresh from farm harvest.`,
-          inStock: true
-        }));
+        const mapped = items.map(p => {
+          const cropLower = (p.crop_name || '').toLowerCase();
+          const fallbackImg = cropLower.includes('tomato') ? '/produce/fresh_tomatoes.jpg' :
+                              cropLower.includes('chilli') || cropLower.includes('mirchi') ? '/produce/dry_red_chilli.jpg' :
+                              cropLower.includes('cotton') ? '/produce/cotton.jpg' :
+                              cropLower.includes('turmeric') ? '/produce/turmeric.jpg' :
+                              cropLower.includes('sugarcane') ? '/produce/sugarcane_canes.jpg' :
+                              cropLower.includes('guava') ? '/produce/thai_guava.jpg' :
+                              cropLower.includes('rice') || cropLower.includes('paddy') ? '/produce/brown_rice.jpg' :
+                              cropLower.includes('kiwi') ? '/produce/kiwi.jpg' :
+                              cropLower.includes('onion') ? 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=600' :
+                              cropLower.includes('potato') ? 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=600' :
+                              cropLower.includes('peas') || cropLower.includes('matar') ? 'https://images.unsplash.com/photo-1587735243615-c03f25aaff15?w=600' :
+                              cropLower.includes('palak') || cropLower.includes('spinach') ? 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=600' :
+                              'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600';
+          const primaryImg = p.images && p.images.length > 0 ? p.images[0].image_url : (p.image_urls && p.image_urls[0]) || fallbackImg;
+          
+          // Wholesale quantities (e.g. 1000 kg) are displayed as retail packs (e.g. 1 kg pack) in consumer store
+          const isBulkMandi = Number(p.quantity) > 20;
+          const displayUnit = isBulkMandi ? '1 kg pack' : `${p.quantity || 1} ${p.unit || 'kg'} pack`;
+          const displayName = p.crop_name === 'Fresh Test Tomato' ? 'Fresh Farm Tomatoes (తాజా టమోటాలు)' : p.crop_name;
+
+          return {
+            id: `db-crop-${p.id}`,
+            name: displayName,
+            category: cropLower.includes('kiwi') || cropLower.includes('guava') || (p.category_name || '').toLowerCase().includes('fruit') ? 'fruits' :
+                      (p.category_name || '').toLowerCase().includes('grain') ? 'grains' :
+                      (p.category_name || '').toLowerCase().includes('pulse') ? 'pulses' : 'vegetables',
+            unit: displayUnit,
+            price: Math.round(Number(p.expected_price_per_kg) || 40),
+            originalPrice: Math.round((Number(p.expected_price_per_kg) || 40) * 1.35),
+            discount: '25% OFF',
+            rating: 4.9,
+            ratingCount: 38,
+            image: primaryImg,
+            farmer: p.farmer_name || 'Direct Farm Producer',
+            origin: p.delivery_location || p.village || 'Telangana Direct Hub',
+            harvestedTime: 'Direct Farm Harvest',
+            deliveryTime: '15-20 Mins',
+            description: p.description || `${displayName} fresh from farm harvest.`,
+            inStock: true
+          };
+        });
         setBackendProducts(mapped);
       })
       .catch(err => {
@@ -353,6 +376,27 @@ const CustomerStorePage = ({ onOpenAddressModal }) => {
                   <p className="text-[10px] text-slate-400 mt-1 truncate">
                     🌱 {product.farmer} • {product.origin}
                   </p>
+
+                  {/* Combo Bundle Item Breakdown */}
+                  {product.bundleItems && product.bundleItems.length > 0 && (
+                    <div className="mt-2.5 pt-2 border-t border-dashed border-emerald-200/80">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 flex items-center gap-1 mb-1.5">
+                        <span>📦</span>
+                        <span>Box Contents ({product.totalWeight || '5 kg'} total):</span>
+                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {product.bundleItems.map((item, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center gap-1 bg-emerald-50 border border-emerald-200/60 text-emerald-950 text-[10px] font-semibold px-1.5 py-0.5 rounded-md"
+                          >
+                            <span>{item.icon}</span>
+                            <span>{item.name} ({item.quantity})</span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Price and Add/Quantity Action */}

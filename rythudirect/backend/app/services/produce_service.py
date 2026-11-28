@@ -212,6 +212,36 @@ def delete_produce_listing(db: Session, produce_id: int, farmer: User) -> dict:
     if listing.farmer_id != farmer.id and farmer.role != UserRole.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this listing.")
 
-    db.delete(listing)
-    db.commit()
-    return {"message": "Listing deleted successfully", "id": produce_id}
+    # Check for active or completed orders referencing this produce item
+    from app.models.order import Order
+    from app.models.offer import BuyerOffer
+
+    has_orders = db.query(Order).filter(Order.produce_id == produce_id).first() is not None
+    if not has_orders:
+        has_orders = db.query(BuyerOffer).filter(
+            BuyerOffer.produce_id == produce_id,
+            BuyerOffer.status.in_(["ACCEPTED", "CONFIRMED"])
+        ).first() is not None
+
+    if has_orders:
+        # Preserve historical transaction data by archiving/deactivating
+        listing.status = "ARCHIVED"
+        listing.remaining_quantity = Decimal("0.0")
+        listing.updated_at = datetime.utcnow()
+        db.commit()
+        return {
+            "message": "Produce listing has associated orders and has been archived instead of permanently deleted to preserve transaction history.",
+            "id": produce_id,
+            "action": "archived"
+        }
+    else:
+        # Safe to delete produce images, pending offers, and listing record
+        db.query(ProduceImage).filter(ProduceImage.produce_id == listing.id).delete()
+        db.query(BuyerOffer).filter(BuyerOffer.produce_id == listing.id).delete()
+        db.delete(listing)
+        db.commit()
+        return {
+            "message": "Produce listing deleted successfully.",
+            "id": produce_id,
+            "action": "deleted"
+        }

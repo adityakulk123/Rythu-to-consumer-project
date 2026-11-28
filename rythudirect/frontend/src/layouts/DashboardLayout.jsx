@@ -14,7 +14,8 @@ import {
   ShieldAlert, 
   Users, 
   TrendingUp,
-  Tag
+  Tag,
+  Activity
 } from 'lucide-react';
 
 const DashboardLayout = () => {
@@ -41,6 +42,7 @@ const DashboardLayout = () => {
 
   const adminNav = [
     { label: "Admin Console", path: '/admin/dashboard', icon: LayoutDashboard },
+    { label: "Metrics", path: '/admin/metrics', icon: Activity },
     { label: "Market Prices", path: '/market-prices', icon: TrendingUp },
   ];
 

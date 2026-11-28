@@ -1,389 +1,394 @@
 import React, { useState, useEffect } from 'react';
-import client from '../../api/client';
-import { useAuth } from '../../context/AuthContext';
-import { useLanguage } from '../../context/LanguageContext';
-import DemoBadge from '../../components/DemoBadge';
-import {
-  ShieldCheck,
-  Users,
-  Store,
-  FileCheck,
-  AlertTriangle,
-  Layers,
-  CheckCircle2,
-  XCircle,
-  Truck,
-  IndianRupee,
+import api from '../../services/api';
+import AdminMetricsPage from './AdminMetricsPage';
+import { 
+  Users, 
+  ShieldCheck, 
+  Package, 
+  DollarSign, 
+  AlertTriangle, 
+  CheckCircle, 
+  XCircle, 
+  Layers, 
+  FileText,
+  UserX,
   Search,
-  Filter,
-  Check,
-  X
+  Activity,
+  Eye,
+  MousePointer,
+  ShieldAlert,
+  Clock,
+  RefreshCw
 } from 'lucide-react';
 
-export default function AdminDashboard() {
-  const { user } = useAuth();
-  const { t } = useLanguage();
-
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'verifications', 'users', 'disputes'
-  const [metrics, setMetrics] = useState({
-    total_farmers: 0,
-    total_buyers: 0,
-    verified_buyers: 0,
-    pending_verifications: 0,
-    active_listings: 0,
-    total_orders: 0,
-    total_transaction_value: 0,
-    pending_disputes: 0,
-  });
-
-  const [pendingBuyers, setPendingBuyers] = useState([]);
-  const [allUsers, setAllUsers] = useState([]);
+const AdminDashboard = () => {
+  const [metrics, setMetrics] = useState(null);
+  const [users, setUsers] = useState([]);
   const [disputes, setDisputes] = useState([]);
-  const [recentOrders, setRecentOrders] = useState([]);
+  const [activeTab, setActiveTab] = useState('overview'); // overview, users, disputes, activity
   const [loading, setLoading] = useState(true);
-  const [statusMsg, setStatusMsg] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [disputeNotes, setDisputeNotes] = useState({});
+  const [activitySummary, setActivitySummary] = useState(null);
+  const [activityLogs, setActivityLogs] = useState([]);
+  const [activityLoading, setActivityLoading] = useState(false);
 
-  // Dispute resolution modal
-  const [selectedDispute, setSelectedDispute] = useState(null);
-  const [resolutionNotes, setResolutionNotes] = useState('');
+  useEffect(() => {
+    loadAdminData();
+  }, [roleFilter]);
+
+  useEffect(() => {
+    if (activeTab === 'activity') {
+      loadActivityData();
+    }
+  }, [activeTab]);
+
+  const loadActivityData = async () => {
+    setActivityLoading(true);
+    try {
+      const [sumRes, logsRes] = await Promise.all([
+        api.get('/activity/summary'),
+        api.get('/activity/logs?limit=40')
+      ]);
+      setActivitySummary(sumRes.data);
+      setActivityLogs(logsRes.data);
+    } catch (e) {
+      console.error("Failed to load activity logs:", e);
+    } finally {
+      setActivityLoading(false);
+    }
+  };
 
   const loadAdminData = async () => {
+    setLoading(true);
     try {
-      const [dashRes, buyersRes, usersRes, disputesRes] = await Promise.all([
-        client.get('/admin/dashboard'),
-        client.get('/admin/buyers/pending-verifications'),
-        client.get('/admin/users'),
-        client.get('/admin/disputes')
+      const [dashRes, usersRes, dispRes] = await Promise.all([
+        api.get('/admin/dashboard'),
+        api.get(roleFilter ? `/admin/users?role=${roleFilter}` : '/admin/users'),
+        api.get('/admin/disputes'),
       ]);
-
-      setMetrics(dashRes.data.metrics);
-      setRecentOrders(dashRes.data.recent_orders || []);
-      setPendingBuyers(buyersRes.data);
-      setAllUsers(usersRes.data);
-      setDisputes(disputesRes.data);
-    } catch (err) {
-      console.error("Admin data load error:", err);
+      setMetrics(dashRes.data);
+      setUsers(usersRes.data);
+      setDisputes(dispRes.data);
+    } catch (e) {
+      console.error(e);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadAdminData();
-  }, []);
-
-  // Buyer verification actions
-  const handleVerifyBuyer = async (buyerId, action) => {
-    const notes = prompt(`Enter administrative review notes for this ${action}:`, 
-      action === 'approve' ? "GST Certificate and Trade License verified" : "Incomplete business tax documentation");
-    if (notes === null) return;
-
+  const handleVerifyBuyer = async (buyerProfileId, status) => {
     try {
-      await client.post(`/admin/buyers/${buyerId}/verify?action=${action}&notes=${encodeURIComponent(notes)}`);
-      setStatusMsg(`Buyer verification ${action}d successfully`);
+      await api.post(`/admin/buyers/${buyerProfileId}/verify?status_update=${status}&notes=Verified by Admin audit`);
       loadAdminData();
-    } catch (err) {
-      alert("Failed to update buyer verification");
+    } catch (e) {
+      alert("Failed to update buyer verification.");
     }
   };
 
-  // User suspend / activate
-  const handleToggleUser = async (userId) => {
+  const handleToggleUserStatus = async (userId) => {
     try {
-      const res = await client.patch(`/admin/users/${userId}/toggle-status`);
-      setStatusMsg(res.data.message);
+      await api.post(`/admin/users/${userId}/toggle-status`);
       loadAdminData();
-    } catch (err) {
-      alert(err.response?.data?.detail || "Failed to update user status");
+    } catch (e) {
+      alert("Failed to toggle user status.");
     }
   };
 
-  // Dispute resolution
-  const handleResolveDispute = async (e) => {
-    e.preventDefault();
+  const handleResolveDispute = async (disputeId, status) => {
+    const notes = disputeNotes[disputeId] || "Resolved after evidence evaluation.";
     try {
-      await client.post(`/admin/disputes/${selectedDispute.id}/resolve`, {
-        status: "resolved",
-        resolution_notes: resolutionNotes
+      await api.post(`/admin/disputes/${disputeId}/resolve`, {
+        status: status,
+        resolution_notes: notes,
       });
-      setSelectedDispute(null);
-      setResolutionNotes('');
-      setStatusMsg("Dispute formally resolved and audit log generated");
       loadAdminData();
-    } catch (err) {
-      alert("Failed to resolve dispute");
+    } catch (e) {
+      alert("Failed to resolve dispute.");
     }
   };
+
+  if (loading && !metrics) {
+    return <div className="py-12 text-center text-xs text-gray-500">Loading admin central metrics...</div>;
+  }
 
   return (
-    <div className="min-h-screen bg-[#F8FAF6] py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
-      {/* Top Banner */}
-      <div className="bg-emerald-950 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8">
+      
+      {/* Admin Title */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold text-amber-300 uppercase tracking-wider">{t('admin_dashboard')}</span>
-            <DemoBadge text="SUPER ADMIN" />
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Marketplace Control & Governance
-          </h1>
-          <p className="text-xs text-emerald-200 mt-1">
-            Logged in as {user?.full_name} • Anti-Middleman Verification & Dispute Mediation System
-          </p>
+          <span className="text-xs font-bold text-amber-800 uppercase tracking-widest bg-amber-100 px-3 py-1 rounded-full">
+            Platform Governance Console
+          </span>
+          <h1 className="text-3xl font-black text-gray-900 mt-2">RythuDirect Administrator Dashboard</h1>
+          <p className="text-xs text-gray-500">Monitor fair marketplace transactions, enforce weighment integrity, and verify buyer credentials</p>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1.5 rounded-xl bg-emerald-900 border border-emerald-800 text-xs text-emerald-200">
-            System Status: <strong>Operational (100%)</strong>
-          </span>
-        </div>
-      </div>
-
-      {statusMsg && (
-        <div className="p-3 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-950 text-xs font-semibold flex items-center justify-between">
-          <span>✓ {statusMsg}</span>
-          <button onClick={() => setStatusMsg('')} className="text-emerald-700 hover:text-emerald-950 font-bold">✕</button>
-        </div>
-      )}
-
-      {/* METRICS GRID */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-2xs">
-          <div className="text-[11px] text-gray-500 font-semibold">{t('total_farmers')}</div>
-          <div className="text-2xl font-extrabold text-emerald-900 mt-1">{metrics.total_farmers}</div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-2xs">
-          <div className="text-[11px] text-gray-500 font-semibold">{t('verified_buyers')} / Total</div>
-          <div className="text-2xl font-extrabold text-gray-900 mt-1">
-            {metrics.verified_buyers} <span className="text-sm font-normal text-gray-400">/ {metrics.total_buyers}</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-2xs">
-          <div className="text-[11px] text-gray-500 font-semibold">{t('pending_verifications')}</div>
-          <div className="text-2xl font-extrabold text-amber-700 mt-1">{pendingBuyers.length}</div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-2xs">
-          <div className="text-[11px] text-gray-500 font-semibold">{t('transaction_value')}</div>
-          <div className="text-xl font-extrabold text-emerald-800 mt-1">₹{metrics.total_transaction_value?.toLocaleString('en-IN')}</div>
-        </div>
-      </div>
-
-      {/* TABS NAVIGATION */}
-      <div className="flex border-b border-gray-200 gap-2 overflow-x-auto text-xs font-bold">
-        {[
-          { id: 'overview', label: 'Platform Overview', icon: Layers },
-          { id: 'verifications', label: `Buyer Verifications (${pendingBuyers.length})`, icon: FileCheck },
-          { id: 'users', label: `User Management (${allUsers.length})`, icon: Users },
-          { id: 'disputes', label: `Disputes & Mediation (${disputes.length})`, icon: AlertTriangle },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          return (
+          {['overview', 'users', 'disputes', 'activity', 'metrics'].map((tab) => (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`py-3 px-4 border-b-2 font-bold flex items-center gap-2 transition cursor-pointer whitespace-nowrap ${
-                activeTab === tab.id
-                  ? 'border-emerald-800 text-emerald-950 bg-emerald-50/50 rounded-t-lg'
-                  : 'border-transparent text-gray-500 hover:text-gray-800'
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold capitalize transition-all ${
+                activeTab === tab
+                  ? 'bg-[#1B4332] text-white shadow-sm'
+                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
               }`}
             >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
+              {tab === 'activity' ? 'Activity & Security' : tab === 'metrics' ? 'Server Metrics' : tab}
             </button>
-          );
-        })}
+          ))}
+        </div>
       </div>
 
-      {/* TAB 1: OVERVIEW */}
-      {activeTab === 'overview' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Orders Stream */}
-          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs space-y-4">
-            <h3 className="font-bold text-sm text-gray-900 border-b border-gray-100 pb-3 flex items-center gap-2">
-              <Truck className="w-4 h-4 text-emerald-700" />
-              <span>Live Order Stream (AP & Telangana)</span>
-            </h3>
+      {/* 7 KPI METRIC CARDS */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div className="bg-white p-5 rounded-3xl border border-gray-200 shadow-xs space-y-1">
+          <span className="text-xs font-bold text-gray-500">Total Registered Farmers</span>
+          <p className="text-2xl font-black text-[#1B4332]">{metrics?.total_farmers || 0}</p>
+          <span className="text-[10px] text-emerald-700 font-semibold">Active rural producers</span>
+        </div>
 
-            <div className="space-y-3">
-              {recentOrders.map((ord) => (
-                <div key={ord.id} className="p-3.5 rounded-xl border border-gray-100 bg-gray-50/60 flex justify-between items-center text-xs">
-                  <div>
-                    <span className="font-mono font-bold text-emerald-900">{ord.order_number}</span>
-                    <p className="text-gray-900 font-bold mt-0.5">{ord.quantity} kg • ₹{ord.agreed_price_per_unit}/kg</p>
-                    <span className="text-[11px] text-gray-500">Total: ₹{ord.initial_total_amount.toLocaleString('en-IN')}</span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">
-                    {ord.status.replace('_', ' ')}
-                  </span>
-                </div>
-              ))}
+        <div className="bg-white p-5 rounded-3xl border border-gray-200 shadow-xs space-y-1">
+          <span className="text-xs font-bold text-gray-500">Verified Buyers</span>
+          <p className="text-2xl font-black text-blue-900">{metrics?.total_verified_buyers || 0} <span className="text-xs text-gray-400 font-normal">/ {metrics?.total_buyers}</span></p>
+          <span className="text-[10px] text-blue-700 font-semibold">GSTIN/APMC audited</span>
+        </div>
+
+        <div className="bg-white p-5 rounded-3xl border border-gray-200 shadow-xs space-y-1">
+          <span className="text-xs font-bold text-gray-500">Total Produce Listings</span>
+          <p className="text-2xl font-black text-gray-900">{metrics?.total_produce_listings || 0}</p>
+          <span className="text-[10px] text-emerald-700 font-semibold">{metrics?.active_produce_listings} currently open</span>
+        </div>
+
+        <div className="bg-white p-5 rounded-3xl border border-gray-200 shadow-xs space-y-1">
+          <span className="text-xs font-bold text-gray-500">Gross Transaction Value (GMV)</span>
+          <p className="text-2xl font-black text-emerald-800">₹{metrics?.total_transaction_value?.toLocaleString('en-IN') || 0}</p>
+          <span className="text-[10px] text-emerald-700 font-semibold">Direct farm settlements</span>
+        </div>
+
+        <div className="bg-white p-5 rounded-3xl border border-gray-200 shadow-xs space-y-1">
+          <span className="text-xs font-bold text-gray-500">Total Orders</span>
+          <p className="text-2xl font-black text-gray-900">{metrics?.total_transactions || 0}</p>
+          <span className="text-[10px] text-gray-500 font-semibold">{metrics?.completed_orders} completed</span>
+        </div>
+
+        <div className="bg-white p-5 rounded-3xl border border-gray-200 shadow-xs space-y-1">
+          <span className="text-xs font-bold text-gray-500">Pending Buyer Verifications</span>
+          <p className="text-2xl font-black text-amber-800">{metrics?.pending_buyer_verifications || 0}</p>
+          <span className="text-[10px] text-amber-700 font-semibold">Awaiting document check</span>
+        </div>
+
+        <div className="bg-white p-5 rounded-3xl border border-gray-200 shadow-xs space-y-1 col-span-2">
+          <span className="text-xs font-bold text-gray-500">Open Reported Disputes</span>
+          <p className="text-2xl font-black text-red-700">{metrics?.pending_disputes || 0}</p>
+          <span className="text-[10px] text-red-600 font-semibold">Requires administrative arbitration</span>
+        </div>
+
+      </div>
+
+      {/* TAB 1: OVERVIEW / BUYER VERIFICATION */}
+      {(activeTab === 'overview' || activeTab === 'verification') && (
+        <div className="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div>
+              <h3 className="font-extrabold text-base text-gray-900">Buyer Business Verification Requests</h3>
+              <p className="text-xs text-gray-500">Approve or reject APMC trader licences and GSTIN documentation</p>
             </div>
+            <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2.5 py-1 rounded-full">
+              Audit Gate
+            </span>
           </div>
 
-          {/* Pending Verifications quick view */}
-          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs space-y-4">
-            <div className="flex justify-between items-center border-b border-gray-100 pb-3">
-              <h3 className="font-bold text-sm text-gray-900 flex items-center gap-2">
-                <FileCheck className="w-4 h-4 text-amber-700" />
-                <span>Urgent Commercial Buyer Verifications</span>
-              </h3>
-              <button onClick={() => setActiveTab('verifications')} className="text-xs text-emerald-800 font-bold hover:underline">
-                View All →
-              </button>
-            </div>
+          <div className="divide-y divide-gray-100">
+            {users.filter(u => u.role === 'BUYER').map((b) => {
+              const prof = b.buyer_profile;
+              const isVerified = prof?.is_verified;
+              const latestVerif = prof?.verifications?.[0];
 
-            {pendingBuyers.length === 0 ? (
-              <div className="py-8 text-center text-xs text-gray-400">
-                All buyer accounts are currently vetted. Zero pending.
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {pendingBuyers.slice(0, 3).map((b) => (
-                  <div key={b.profile_id} className="p-3.5 rounded-xl border border-gray-100 bg-gray-50/60 flex justify-between items-center text-xs">
-                    <div>
-                      <h4 className="font-bold text-gray-900">{b.business_name}</h4>
-                      <p className="text-[11px] text-gray-500">{b.full_name} • {b.business_type} • GSTIN: {b.gstin_pan || "Pending"}</p>
+              return (
+                <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-extrabold text-sm text-gray-900">{prof?.business_name || b.full_name}</h4>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                        isVerified ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {isVerified ? "VERIFIED" : "PENDING AUDIT"}
+                      </span>
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleVerifyBuyer(b.buyer_id, 'approve')}
-                        className="px-2.5 py-1 rounded-lg bg-emerald-800 text-white font-bold text-xs"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleVerifyBuyer(b.buyer_id, 'reject')}
-                        className="px-2.5 py-1 rounded-lg border border-red-300 text-red-600 font-bold text-xs hover:bg-red-50"
-                      >
-                        Reject
-                      </button>
-                    </div>
+                    <p className="text-xs text-gray-600 mt-0.5">
+                      Contact: <strong>{b.full_name}</strong> • Mobile: {b.mobile_number} • District: {b.district}
+                    </p>
+                    <p className="text-[11px] text-gray-500">
+                      Type: <strong>{prof?.business_type}</strong> • Doc: {latestVerif?.document_type || "GSTIN"} ({latestVerif?.document_number || "36AABCS1001Z1"})
+                    </p>
                   </div>
-                ))}
-              </div>
-            )}
+
+                  <div className="flex items-center gap-2">
+                    {!isVerified ? (
+                      <button
+                        onClick={() => handleVerifyBuyer(prof?.id, 'APPROVED')}
+                        className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs transition-colors"
+                      >
+                        Approve Verification
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleVerifyBuyer(prof?.id, 'REJECTED')}
+                        className="px-4 py-2 border border-red-200 text-red-700 hover:bg-red-50 rounded-xl text-xs font-bold transition-colors"
+                      >
+                        Revoke Badge
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* TAB 2: BUYER VERIFICATIONS */}
-      {activeTab === 'verifications' && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
-          <div className="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+      {/* TAB 2: DISPUTES MANAGER */}
+      {(activeTab === 'overview' || activeTab === 'disputes') && (
+        <div className="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-gray-100">
             <div>
-              <h3 className="font-bold text-sm text-gray-900">Commercial Buyer Onboarding & Document Review</h3>
-              <p className="text-xs text-gray-500">Only verified buyers can enter formal contracts and make binding offers</p>
+              <h3 className="font-extrabold text-base text-gray-900">Reported Transaction Disputes & Arbitration</h3>
+              <p className="text-xs text-gray-500">Investigate scale tare discrepancies, quality deductions, or payment delays</p>
             </div>
-            <DemoBadge text="KYB VERIFICATION" />
+            <span className="bg-red-100 text-red-900 text-[10px] font-bold px-2.5 py-1 rounded-full">
+              Legal Metrology & APMC Mediation
+            </span>
           </div>
 
-          {pendingBuyers.length === 0 ? (
-            <div className="p-12 text-center text-gray-400 text-xs">
-              No pending buyer verifications at this moment.
-            </div>
+          {disputes.length === 0 ? (
+            <div className="text-center py-6 text-xs text-gray-400">No reported disputes on the platform.</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="bg-gray-100 text-gray-700 font-bold uppercase text-[10px]">
-                    <th className="py-3 px-4">Business / Company Name</th>
-                    <th className="py-3 px-4">Contact Person</th>
-                    <th className="py-3 px-4">Business Type</th>
-                    <th className="py-3 px-4">Tax / GSTIN ID</th>
-                    <th className="py-3 px-4">Operating Address</th>
-                    <th className="py-3 px-4 text-right">Verification Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {pendingBuyers.map((b) => (
-                    <tr key={b.profile_id} className="hover:bg-gray-50/70 transition">
-                      <td className="py-3 px-4 font-bold text-gray-900">{b.business_name}</td>
-                      <td className="py-3 px-4">
-                        {b.full_name}
-                        <span className="block text-[11px] text-gray-500">{b.mobile_number}</span>
-                      </td>
-                      <td className="py-3 px-4">{b.business_type} ({b.buyer_category})</td>
-                      <td className="py-3 px-4 font-mono font-bold text-emerald-900">{b.gstin_pan || "Aadhaar/PAN Pending"}</td>
-                      <td className="py-3 px-4 text-gray-600 max-w-xs truncate">{b.business_address}</td>
-                      <td className="py-3 px-4 text-right space-x-2">
+            <div className="space-y-4">
+              {disputes.map((d) => (
+                <div key={d.id} className="p-4 bg-gray-50 rounded-2xl border border-gray-200 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <span className="text-xs font-black text-red-700 uppercase tracking-wide">
+                        Issue: {d.reason.replace(/_/g, ' ')}
+                      </span>
+                      <p className="text-xs text-gray-800 mt-0.5">
+                        Order #{d.order_number} • Raised by: <strong>{d.raised_by_name} ({d.raised_by_role})</strong>
+                      </p>
+                    </div>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                      d.status === 'OPEN' ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'
+                    }`}>
+                      {d.status}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-gray-600 bg-white p-3 rounded-xl border border-gray-200/60 leading-relaxed">
+                    "{d.description}"
+                  </p>
+
+                  {d.status === 'OPEN' && (
+                    <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
+                      <input
+                        type="text"
+                        placeholder="Resolution judgment note (e.g. Weighbridge certified tare affirmed)..."
+                        value={disputeNotes[d.id] || ''}
+                        onChange={(e) => setDisputeNotes({ ...disputeNotes, [d.id]: e.target.value })}
+                        className="flex-1 px-3 py-1.5 border border-gray-300 rounded-xl text-xs bg-white"
+                      />
+                      <div className="flex items-center gap-2">
                         <button
-                          onClick={() => handleVerifyBuyer(b.buyer_id, 'approve')}
-                          className="px-3 py-1 rounded-lg bg-emerald-800 text-white font-bold text-xs hover:bg-emerald-700"
+                          onClick={() => handleResolveDispute(d.id, 'RESOLVED')}
+                          className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold"
                         >
-                          Approve
+                          Resolve in Favor
                         </button>
                         <button
-                          onClick={() => handleVerifyBuyer(b.buyer_id, 'reject')}
-                          className="px-3 py-1 rounded-lg border border-red-300 text-red-600 font-bold text-xs hover:bg-red-50"
+                          onClick={() => handleResolveDispute(d.id, 'REJECTED')}
+                          className="px-3.5 py-1.5 border border-gray-300 hover:bg-gray-100 text-gray-700 rounded-xl text-xs font-semibold"
                         >
-                          Decline
+                          Dismiss Claim
                         </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {d.resolution_notes && (
+                    <div className="text-[11px] text-emerald-800 bg-emerald-50 p-2 rounded-lg font-medium">
+                      Admin Resolution: {d.resolution_notes}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>
       )}
 
-      {/* TAB 3: USER MANAGEMENT */}
+      {/* TAB 3: USER MANAGEMENT & SUSPENSION */}
       {activeTab === 'users' && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
-          <div className="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
-            <h3 className="font-bold text-sm text-gray-900">Registered Platform Users Directory</h3>
-            <span className="text-xs text-gray-500 font-medium">Total: {allUsers.length}</span>
+        <div className="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div>
+              <h3 className="font-extrabold text-base text-gray-900">User Registry & Account Control</h3>
+              <p className="text-xs text-gray-500">Monitor active farmers and buyers; suspend fraudulent actors</p>
+            </div>
+            
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="px-3 py-1.5 border border-gray-200 rounded-xl text-xs font-semibold"
+            >
+              <option value="">All Roles</option>
+              <option value="FARMER">Farmers</option>
+              <option value="BUYER">Buyers</option>
+            </select>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-gray-100 text-gray-700 font-bold uppercase text-[10px]">
-                  <th className="py-3 px-4">Name</th>
-                  <th className="py-3 px-4">Role</th>
-                  <th className="py-3 px-4">Mobile</th>
-                  <th className="py-3 px-4">Location</th>
-                  <th className="py-3 px-4">Profile Details</th>
-                  <th className="py-3 px-4">Account Status</th>
-                  <th className="py-3 px-4 text-right">Action</th>
+            <table className="w-full text-left text-xs">
+              <thead className="bg-[#1B4332] text-white uppercase text-[10px] font-extrabold">
+                <tr>
+                  <th className="px-4 py-3">User Name</th>
+                  <th className="px-4 py-3">Role</th>
+                  <th className="px-4 py-3">Mobile & Email</th>
+                  <th className="px-4 py-3">Location</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 text-right">Account Control</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {allUsers.map((u) => (
-                  <tr key={u.id} className="hover:bg-gray-50/70 transition">
-                    <td className="py-3 px-4 font-bold text-gray-900">{u.full_name}</td>
-                    <td className="py-3 px-4">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                        u.role === 'farmer' ? 'bg-emerald-100 text-emerald-800' : u.role === 'buyer' ? 'bg-amber-100 text-amber-800' : 'bg-purple-100 text-purple-800'
-                      }`}>
+                {users.map((u) => (
+                  <tr key={u.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 font-bold text-gray-900">{u.full_name}</td>
+                    <td className="px-4 py-3">
+                      <span className="bg-gray-100 text-gray-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
                         {u.role}
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-mono">{u.mobile_number}</td>
-                    <td className="py-3 px-4">{u.village}, {u.district}</td>
-                    <td className="py-3 px-4 text-gray-600">
-                      {u.farmer_profile ? `Farm: ${u.farmer_profile.farm_name}` : u.buyer_profile ? `Business: ${u.buyer_profile.business_name}` : 'Admin'}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                    <td className="px-4 py-3 text-gray-600 font-mono text-[11px]">{u.mobile_number}</td>
+                    <td className="px-4 py-3 text-gray-600">{u.village}, {u.district}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                         u.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
                       }`}>
-                        {u.is_active ? 'Active' : 'Suspended'}
+                        {u.is_active ? 'ACTIVE' : 'SUSPENDED'}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-right">
-                      {u.role !== 'admin' && (
+                    <td className="px-4 py-3 text-right">
+                      {u.role !== 'ADMIN' && (
                         <button
-                          onClick={() => handleToggleUser(u.id)}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
-                            u.is_active ? 'text-red-600 hover:bg-red-50' : 'text-emerald-700 hover:bg-emerald-50'
+                          onClick={() => handleToggleUserStatus(u.id)}
+                          className={`px-3 py-1 rounded-xl text-[11px] font-bold ${
+                            u.is_active
+                              ? 'border border-red-200 text-red-700 hover:bg-red-50'
+                              : 'bg-emerald-700 text-white hover:bg-emerald-800'
                           }`}
                         >
-                          {u.is_active ? 'Suspend' : 'Activate'}
+                          {u.is_active ? 'Suspend Account' : 'Reactivate'}
                         </button>
                       )}
                     </td>
@@ -395,109 +400,195 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* TAB 4: DISPUTES MEDIATION */}
-      {activeTab === 'disputes' && (
-        <div className="space-y-4">
-          <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-2xs flex justify-between items-center">
+      {/* ACTIVITY & SECURITY TRACKING TAB */}
+      {activeTab === 'activity' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-sm text-gray-900">Dispute Mediation & Scale Audit Chamber</h3>
-              <p className="text-xs text-gray-500">Handle quantity mismatches, quality deductions, or payment disputes</p>
+              <h2 className="text-xl font-bold text-gray-900">User Activity & Security Auditing</h2>
+              <p className="text-xs text-gray-500">Live monitoring of user navigation, feature usage, and authentication security (Intra-platform only)</p>
             </div>
-            <DemoBadge text="MEDIATION AUDIT" />
+            <button
+              onClick={loadActivityData}
+              disabled={activityLoading}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-700 text-white hover:bg-emerald-800 disabled:opacity-50 transition-all"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${activityLoading ? 'animate-spin' : ''}`} />
+              Refresh Activity
+            </button>
           </div>
 
-          {disputes.length === 0 ? (
-            <div className="bg-white p-12 text-center rounded-2xl border border-gray-100 text-gray-400">
-              No disputes reported. Clean marketplace record!
+          {/* Activity Stat Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="bg-white p-4 rounded-2xl border border-gray-200">
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Total Events</span>
+              <span className="text-2xl font-black text-gray-900">{activitySummary?.total_events || 0}</span>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {disputes.map((d) => (
-                <div key={d.id} className="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs space-y-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-red-100 text-red-800">
-                        {d.dispute_type.replace('_', ' ')}
+            <div className="bg-white p-4 rounded-2xl border border-gray-200">
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Page Views</span>
+              <span className="text-2xl font-black text-blue-600">{activitySummary?.total_page_views || 0}</span>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-200">
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Feature Clicks</span>
+              <span className="text-2xl font-black text-purple-600">{activitySummary?.total_feature_clicks || 0}</span>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-200">
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Logins</span>
+              <span className="text-2xl font-black text-emerald-600">{activitySummary?.successful_logins || 0}</span>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-200">
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Failed Logins</span>
+              <span className={`text-2xl font-black ${(activitySummary?.failed_logins || 0) > 0 ? 'text-red-600' : 'text-gray-400'}`}>
+                {activitySummary?.failed_logins || 0}
+              </span>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-200">
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Active Users</span>
+              <span className="text-2xl font-black text-amber-600">{activitySummary?.unique_active_users || 0}</span>
+            </div>
+          </div>
+
+          {/* Navigation Trends & Failed Logins Breakdown */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Top Visited Pages & Features */}
+            <div className="bg-white p-5 rounded-3xl border border-gray-200 space-y-4">
+              <h3 className="text-sm font-black text-gray-900 flex items-center gap-2">
+                <Eye className="w-4 h-4 text-emerald-700" />
+                Frequently Visited Pages (Navigation Patterns)
+              </h3>
+              <div className="space-y-2">
+                {activitySummary?.top_pages?.length ? (
+                  activitySummary.top_pages.map((p, idx) => (
+                    <div key={idx} className="flex items-center justify-between text-xs p-2 rounded-xl bg-gray-50">
+                      <span className="font-mono text-gray-700 truncate max-w-[280px]">{p.name}</span>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">
+                        {p.count} views
                       </span>
-                      <h4 className="font-bold text-base text-gray-900 mt-1">{d.title}</h4>
-                      <p className="text-xs text-gray-600 mt-1">{d.description}</p>
                     </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-gray-400 py-3 text-center">No page views recorded yet</p>
+                )}
+              </div>
+            </div>
 
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${
-                      d.status === 'resolved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                    }`}>
-                      {d.status}
-                    </span>
+            {/* Security Alerts: Failed Logins */}
+            <div className="bg-white p-5 rounded-3xl border border-gray-200 space-y-4">
+              <h3 className="text-sm font-black text-gray-900 flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4 text-red-600" />
+                Security & Failed Login Alerts
+              </h3>
+              <div className="space-y-2 max-h-[220px] overflow-y-auto">
+                {activitySummary?.recent_suspicious_or_failed_attempts?.length ? (
+                  activitySummary.recent_suspicious_or_failed_attempts.map((alert) => (
+                    <div key={alert.id} className="p-2.5 rounded-xl bg-red-50 border border-red-100 text-xs flex items-start justify-between">
+                      <div>
+                        <span className="font-bold text-red-800 block">Target: {alert.user_identifier || 'Unknown'}</span>
+                        <span className="text-[11px] text-red-600">{alert.details || 'Failed credential verification'}</span>
+                        <div className="text-[10px] text-gray-500 mt-1 flex items-center gap-2">
+                          <span>IP: {alert.ip_address || 'unknown'}</span>
+                          <span>•</span>
+                          <span>{new Date(alert.created_at).toLocaleTimeString()}</span>
+                        </div>
+                      </div>
+                      <span className="px-2 py-0.5 bg-red-200 text-red-900 text-[10px] font-black rounded-md uppercase">
+                        {alert.activity_type}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-6 text-gray-400 text-xs">
+                    <CheckCircle className="w-8 h-8 text-emerald-500 mx-auto mb-1 opacity-70" />
+                    No suspicious activities or failed login attempts detected. System secure.
                   </div>
-
-                  {d.resolution_notes && (
-                    <div className="p-3 bg-emerald-50 rounded-xl text-xs text-emerald-950 border border-emerald-200">
-                      <strong>Admin Resolution:</strong> {d.resolution_notes}
-                    </div>
-                  )}
-
-                  {d.status !== 'resolved' && (
-                    <div className="pt-2 flex justify-end">
-                      <button
-                        onClick={() => {
-                          setSelectedDispute(d);
-                          setResolutionNotes("Reviewed joint platform scale certificate and mutually adjusted deduction margin.");
-                        }}
-                        className="px-4 py-2 rounded-xl bg-emerald-800 text-white font-bold text-xs"
-                      >
-                        Resolve Dispute
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* RESOLVE DISPUTE MODAL */}
-      {selectedDispute && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-gray-100 p-6 space-y-4">
-            <div className="flex justify-between items-center border-b border-gray-100 pb-3">
-              <h3 className="font-bold text-base text-gray-900">Resolve Dispute #{selectedDispute.id}</h3>
-              <button onClick={() => setSelectedDispute(null)} className="text-gray-400 hover:text-gray-600">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleResolveDispute} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Administrative Resolution Finding *</label>
-                <textarea
-                  rows={3}
-                  required
-                  value={resolutionNotes}
-                  onChange={(e) => setResolutionNotes(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs focus:outline-hidden focus:border-emerald-600"
-                />
+                )}
               </div>
+            </div>
+          </div>
 
-              <div className="pt-2 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setSelectedDispute(null)}
-                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 text-xs font-bold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2.5 rounded-xl bg-emerald-800 text-white text-xs font-bold hover:bg-emerald-700 transition"
-                >
-                  Issue Formal Resolution
-                </button>
-              </div>
-            </form>
+          {/* Activity Log Feed */}
+          <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-xs">
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h3 className="font-bold text-sm text-gray-800 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-emerald-600" />
+                Real-Time User Activity Stream
+              </h3>
+              <span className="text-xs text-gray-500">Last 40 events</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-gray-50 text-gray-500 uppercase tracking-wider text-[10px]">
+                  <tr>
+                    <th className="px-4 py-3">Timestamp</th>
+                    <th className="px-4 py-3">Type</th>
+                    <th className="px-4 py-3">User / Identifier</th>
+                    <th className="px-4 py-3">Page / Feature</th>
+                    <th className="px-4 py-3">Details</th>
+                    <th className="px-4 py-3">Client IP</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {activityLogs.map((log) => {
+                    let badgeColor = 'bg-gray-100 text-gray-700';
+                    if (log.activity_type === 'PAGE_VIEW') badgeColor = 'bg-blue-100 text-blue-800';
+                    else if (log.activity_type === 'LOGIN_SUCCESS') badgeColor = 'bg-emerald-100 text-emerald-800';
+                    else if (log.activity_type === 'LOGIN_FAILED') badgeColor = 'bg-red-100 text-red-800';
+                    else if (log.activity_type === 'LOGOUT') badgeColor = 'bg-amber-100 text-amber-800';
+                    else if (log.activity_type === 'REGISTER') badgeColor = 'bg-purple-100 text-purple-800';
+                    else if (log.activity_type === 'FEATURE_INTERACTION') badgeColor = 'bg-teal-100 text-teal-800';
+
+                    return (
+                      <tr key={log.id} className="hover:bg-gray-50/80 transition-colors">
+                        <td className="px-4 py-2.5 text-gray-500 font-mono text-[11px]">
+                          {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeColor}`}>
+                            {log.activity_type}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2.5 text-gray-800 font-medium">
+                          {log.user_identifier || 'Guest'}
+                          {log.user_role && (
+                            <span className="text-[10px] text-gray-400 block font-normal">Role: {log.user_role}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className="font-mono text-gray-700 text-[11px] block">{log.page_path || '-'}</span>
+                          {log.feature_name && (
+                            <span className="text-[10px] font-bold text-teal-700">{log.feature_name}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-2.5 text-gray-500 max-w-[220px] truncate" title={log.details || ''}>
+                          {log.details || '-'}
+                        </td>
+                        <td className="px-4 py-2.5 text-gray-400 font-mono text-[10px]">
+                          {log.ip_address || '-'}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {activityLogs.length === 0 && (
+                    <tr>
+                      <td colSpan="6" className="text-center py-8 text-gray-400">
+                        No activity records found yet.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
+
+      {/* TAB 5: AUTOMATED SERVER METRICS */}
+      {activeTab === 'metrics' && (
+        <AdminMetricsPage />
+      )}
+
     </div>
   );
-}
+};
+
+export default AdminDashboard;

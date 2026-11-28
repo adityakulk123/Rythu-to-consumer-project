@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import AdminMetricsPage from './AdminMetricsPage';
 import { 
   Users, 
   ShieldCheck, 
@@ -125,7 +126,7 @@ const AdminDashboard = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          {['overview', 'users', 'disputes', 'activity'].map((tab) => (
+          {['overview', 'users', 'disputes', 'activity', 'metrics'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -135,7 +136,7 @@ const AdminDashboard = () => {
                   : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
               }`}
             >
-              {tab === 'activity' ? 'Activity & Security' : tab}
+              {tab === 'activity' ? 'Activity & Security' : tab === 'metrics' ? 'Server Metrics' : tab}
             </button>
           ))}
         </div>
@@ -579,6 +580,11 @@ const AdminDashboard = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* TAB 5: AUTOMATED SERVER METRICS */}
+      {activeTab === 'metrics' && (
+        <AdminMetricsPage />
       )}
 
     </div>

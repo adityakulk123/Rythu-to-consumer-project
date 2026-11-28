@@ -160,3 +160,48 @@ def create_category(data: CropCategoryCreate, admin: User = Depends(get_current_
     db.commit()
     db.refresh(cat)
     return cat
+
+@router.get("/metrics", status_code=status.HTTP_200_OK)
+def get_admin_metrics(
+    skip: int = 0,
+    limit: int = 50,
+    admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    Retrieves collected server metrics from Supabase PostgreSQL for the Admin Console.
+    Restricted to authenticated Admin users only.
+    Returns records sorted by collection timestamp in descending order (latest first).
+    """
+    from sqlalchemy import desc
+    from app.models.metric import Metric
+    total = db.query(Metric).count()
+    records = (
+        db.query(Metric)
+        .order_by(desc(Metric.collected_at), desc(Metric.id))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+    return {
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+        "items": [
+            {
+                "id": m.id,
+                "cpu_percent": m.cpu_percent,
+                "ram_percent": m.ram_percent,
+                "ram_total": m.ram_total,
+                "ram_used": m.ram_used,
+                "disk_percent": m.disk_percent,
+                "disk_total": m.disk_total,
+                "disk_used": m.disk_used,
+                "network_bytes_sent": m.network_bytes_sent,
+                "network_bytes_recv": m.network_bytes_recv,
+                "server_uptime_seconds": m.server_uptime_seconds,
+                "collected_at": m.collected_at.isoformat(),
+            }
+            for m in records
+        ]
+    }

@@ -34,3 +34,5 @@ Thumbs.db
 .idea/
 .neon
 node_modules/
+
+scratch/
