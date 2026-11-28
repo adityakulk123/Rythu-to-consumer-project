@@ -31,8 +31,10 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: str = os.getenv("CLOUDINARY_API_KEY", "")
     CLOUDINARY_API_SECRET: str = os.getenv("CLOUDINARY_API_SECRET", "")
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    model_config = {
+        "case_sensitive": True,
+        "env_file": ".env",
+        "extra": "ignore"
+    }
 
 settings = Settings()

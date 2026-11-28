@@ -1,3 +1,32 @@
+import sys
+import os
+
+# Ensure backend directory is in sys.path when executed directly
+_backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _backend_dir not in sys.path:
+    sys.path.insert(0, _backend_dir)
+
+# Automatic interpreter correction: If invoked with an external/system Python lacking fastapi,
+# seamlessly hand off execution to the project's virtual environment python.
+try:
+    import fastapi
+except ImportError:
+    _possible_venvs = [
+        os.path.join(_backend_dir, "venv", "Scripts", "python.exe"),
+        os.path.join(os.path.dirname(_backend_dir), "rythudirect", "backend", "venv", "Scripts", "python.exe"),
+        os.path.join(os.path.dirname(_backend_dir), "backend", "venv", "Scripts", "python.exe"),
+    ]
+    for _venv_py in _possible_venvs:
+        if os.path.exists(_venv_py) and os.path.abspath(sys.executable).lower() != os.path.abspath(_venv_py).lower():
+            import subprocess
+            if sys.argv and sys.argv[0] and not sys.argv[0].startswith("-"):
+                _cmd = [_venv_py, os.path.abspath(__file__)] + sys.argv[1:]
+            else:
+                _cmd = [_venv_py, os.path.abspath(__file__)]
+            _res = subprocess.run(_cmd)
+            sys.exit(_res.returncode)
+    raise
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
